@@ -1,11 +1,15 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 import type { Word } from "@shared/schema";
 
@@ -18,6 +22,12 @@ export default function CategoriesTab({ onOpenWordCard }: CategoriesTabProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [wordSearchTerm, setWordSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState("alphabetical");
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [editingCategory, setEditingCategory] = useState<string | null>(null);
+  const [editCategoryName, setEditCategoryName] = useState("");
+  const [isManageDialogOpen, setIsManageDialogOpen] = useState(false);
+  
+  const { toast } = useToast();
   
   const { data: categories = [] } = useQuery<string[]>({
     queryKey: ['/api/categories'],
@@ -25,6 +35,68 @@ export default function CategoriesTab({ onOpenWordCard }: CategoriesTabProps) {
 
   const { data: allWords = [] } = useQuery<Word[]>({
     queryKey: ['/api/words'],
+  });
+
+  // Category mutations
+  const addCategoryMutation = useMutation({
+    mutationFn: async (categoryName: string) => {
+      const response = await fetch('/api/categories', {
+        method: 'POST',
+        body: JSON.stringify({ name: categoryName }),
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) throw new Error('Failed to add category');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/categories'] });
+      setNewCategoryName("");
+      toast({ title: "Kategori eklendi", description: "Yeni kategori başarıyla eklendi." });
+    },
+    onError: () => {
+      toast({ title: "Hata", description: "Kategori eklenirken bir hata oluştu.", variant: "destructive" });
+    }
+  });
+
+  const updateCategoryMutation = useMutation({
+    mutationFn: async ({ oldName, newName }: { oldName: string; newName: string }) => {
+      const response = await fetch(`/api/categories/${encodeURIComponent(oldName)}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ name: newName }),
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) throw new Error('Failed to update category');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/categories'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/words'] });
+      setEditingCategory(null);
+      setEditCategoryName("");
+      toast({ title: "Kategori güncellendi", description: "Kategori adı başarıyla değiştirildi." });
+    },
+    onError: () => {
+      toast({ title: "Hata", description: "Kategori güncellenirken bir hata oluştu.", variant: "destructive" });
+    }
+  });
+
+  const deleteCategoryMutation = useMutation({
+    mutationFn: async (categoryName: string) => {
+      const response = await fetch(`/api/categories/${encodeURIComponent(categoryName)}`, {
+        method: 'DELETE'
+      });
+      if (!response.ok) throw new Error('Failed to delete category');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/categories'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/words'] });
+      setSelectedCategory(null);
+      toast({ title: "Kategori silindi", description: "Kategori başarıyla silindi." });
+    },
+    onError: () => {
+      toast({ title: "Hata", description: "Kategori silinirken bir hata oluştu.", variant: "destructive" });
+    }
   });
 
   // Filter and sort categories
@@ -125,7 +197,124 @@ export default function CategoriesTab({ onOpenWordCard }: CategoriesTabProps) {
       <div className="lg:col-span-1">
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Kategoriler</CardTitle>
+            <CardTitle className="flex items-center justify-between text-lg">
+              <span>Kategoriler</span>
+              <Dialog open={isManageDialogOpen} onOpenChange={setIsManageDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <i className="fas fa-cog mr-2"></i>
+                    Yönet
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Kategori Yönetimi</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    {/* Add new category */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Yeni Kategori Ekle</label>
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Kategori adı..."
+                          value={newCategoryName}
+                          onChange={(e) => setNewCategoryName(e.target.value)}
+                        />
+                        <Button 
+                          onClick={() => addCategoryMutation.mutate(newCategoryName)}
+                          disabled={!newCategoryName.trim() || addCategoryMutation.isPending}
+                        >
+                          Ekle
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Existing categories */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Mevcut Kategoriler</label>
+                      <ScrollArea className="h-48">
+                        <div className="space-y-2">
+                          {categories.map((category) => {
+                            const categoryData = getCategoryData(category);
+                            return (
+                              <div key={category} className="flex items-center gap-2 p-2 border rounded">
+                                {editingCategory === category ? (
+                                  <>
+                                    <Input
+                                      value={editCategoryName}
+                                      onChange={(e) => setEditCategoryName(e.target.value)}
+                                      className="flex-1"
+                                    />
+                                    <Button 
+                                      size="sm"
+                                      onClick={() => updateCategoryMutation.mutate({ oldName: category, newName: editCategoryName })}
+                                      disabled={!editCategoryName.trim() || updateCategoryMutation.isPending}
+                                    >
+                                      <i className="fas fa-check"></i>
+                                    </Button>
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline"
+                                      onClick={() => {
+                                        setEditingCategory(null);
+                                        setEditCategoryName("");
+                                      }}
+                                    >
+                                      <i className="fas fa-times"></i>
+                                    </Button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <div className="flex-1">
+                                      <div className="font-medium">{category}</div>
+                                      <div className="text-xs text-muted-foreground">{categoryData.wordCount} kelime</div>
+                                    </div>
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline"
+                                      onClick={() => {
+                                        setEditingCategory(category);
+                                        setEditCategoryName(category);
+                                      }}
+                                    >
+                                      <i className="fas fa-edit"></i>
+                                    </Button>
+                                    <AlertDialog>
+                                      <AlertDialogTrigger asChild>
+                                        <Button size="sm" variant="destructive">
+                                          <i className="fas fa-trash"></i>
+                                        </Button>
+                                      </AlertDialogTrigger>
+                                      <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                          <AlertDialogTitle>Kategoriyi Sil</AlertDialogTitle>
+                                          <AlertDialogDescription>
+                                            "{category}" kategorisini silmek istediğinizden emin misiniz? Bu kategorideki tüm kelimeler "Genel" kategorisine taşınacak.
+                                          </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                          <AlertDialogCancel>İptal</AlertDialogCancel>
+                                          <AlertDialogAction
+                                            onClick={() => deleteCategoryMutation.mutate(category)}
+                                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                          >
+                                            Sil
+                                          </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                      </AlertDialogContent>
+                                    </AlertDialog>
+                                  </>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </ScrollArea>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {/* Search and Filter Controls */}
