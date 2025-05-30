@@ -25,13 +25,29 @@ export default function WordCardTab() {
     queryKey: ['/api/favorites'],
   });
 
+  const { data: favoriteLists = [] } = useQuery({
+    queryKey: ['/api/favorite-lists'],
+  });
+
   const { data: categories = [] } = useQuery<string[]>({
     queryKey: ['/api/categories'],
   });
 
   // Filter words based on current filters
   const filteredWords = useMemo(() => {
-    let words = favoriteFilter === 'true' ? favoriteWords : allWords;
+    let words = allWords;
+
+    // Apply favorite filter
+    if (favoriteFilter === 'true') {
+      words = favoriteWords;
+    } else if (favoriteFilter !== 'all') {
+      // Filter by specific favorite list
+      const selectedList = favoriteLists.find(list => list.id.toString() === favoriteFilter);
+      if (selectedList) {
+        const listWordIds = selectedList.wordIds.map(id => parseInt(id.toString()));
+        words = allWords.filter(word => listWordIds.includes(word.id));
+      }
+    }
 
     if (searchTerm) {
       words = words.filter(word => 
@@ -45,7 +61,7 @@ export default function WordCardTab() {
     }
 
     return words;
-  }, [allWords, favoriteWords, searchTerm, selectedCategory, favoriteFilter]);
+  }, [allWords, favoriteWords, favoriteLists, searchTerm, selectedCategory, favoriteFilter]);
 
   const currentWord = filteredWords[currentCardIndex];
   const progress = filteredWords.length > 0 ? ((currentCardIndex + 1) / filteredWords.length) * 100 : 0;
@@ -187,7 +203,12 @@ export default function WordCardTab() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Words</SelectItem>
-                  <SelectItem value="true">Favorites Only</SelectItem>
+                  <SelectItem value="true">All Favorites</SelectItem>
+                  {favoriteLists.map((list) => (
+                    <SelectItem key={list.id} value={list.id.toString()}>
+                      {list.name} ({list.wordIds.length})
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
