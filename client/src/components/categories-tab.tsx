@@ -116,6 +116,26 @@ export default function CategoriesTab({ onOpenWordCard }: CategoriesTabProps) {
             <CardTitle className="text-lg">Kategoriler</CardTitle>
           </CardHeader>
           <CardContent>
+            {/* Search and Filter Controls */}
+            <div className="space-y-4 mb-6">
+              <Input
+                placeholder="Kategori ara..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full"
+              />
+              <Select value={sortOrder} onValueChange={setSortOrder}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sıralama" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="alphabetical">Alfabetik</SelectItem>
+                  <SelectItem value="wordCount">Kelime Sayısına Göre</SelectItem>
+                  <SelectItem value="mostUsed">En Sık Kullanılan</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="space-y-3">
               {/* Show "All Categories" option */}
               <div 
@@ -135,8 +155,8 @@ export default function CategoriesTab({ onOpenWordCard }: CategoriesTabProps) {
                 </div>
               </div>
               
-              {/* Show categories */}
-              {categories.map((category) => {
+              {/* First 10 categories */}
+              {displayedCategories.map((category) => {
                 const categoryData = getCategoryData(category);
                 return (
                   <div 
