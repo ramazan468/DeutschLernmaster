@@ -131,7 +131,7 @@ export default function FavoritesTab({ onOpenWordCard }: FavoritesTabProps) {
         <Card>
           <CardHeader>
             <div className="flex justify-between items-center">
-              <CardTitle className="text-lg">Favorite Lists</CardTitle>
+              <CardTitle className="text-lg">Favori Listeleri</CardTitle>
               <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                 <DialogTrigger asChild>
                   <Button variant="ghost" size="sm">
@@ -140,16 +140,16 @@ export default function FavoritesTab({ onOpenWordCard }: FavoritesTabProps) {
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Create Favorite List</DialogTitle>
+                    <DialogTitle>Yeni Favori Listesi</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="list-name">List Name</Label>
+                      <Label htmlFor="list-name">Liste Adı</Label>
                       <Input
                         id="list-name"
                         value={newListName}
                         onChange={(e) => setNewListName(e.target.value)}
-                        placeholder="Enter list name..."
+                        placeholder="Liste adını girin..."
                       />
                     </div>
                     <Button 
@@ -157,7 +157,7 @@ export default function FavoritesTab({ onOpenWordCard }: FavoritesTabProps) {
                       disabled={createListMutation.isPending || !newListName.trim()}
                       className="w-full"
                     >
-                      Create List
+                      Liste Oluştur
                     </Button>
                   </div>
                 </DialogContent>
@@ -215,7 +215,7 @@ export default function FavoritesTab({ onOpenWordCard }: FavoritesTabProps) {
               <div>
                 <div className="relative">
                   <Input
-                    placeholder="Search favorites..."
+                    placeholder="Favorilerde ara..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
@@ -226,10 +226,10 @@ export default function FavoritesTab({ onOpenWordCard }: FavoritesTabProps) {
               <div>
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                   <SelectTrigger>
-                    <SelectValue placeholder="All Categories" />
+                    <SelectValue placeholder="Tüm Kategoriler" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
+                    <SelectItem value="all">Tüm Kategoriler</SelectItem>
                     {categories.map((category) => (
                       <SelectItem key={category} value={category}>
                         {category}
@@ -241,12 +241,12 @@ export default function FavoritesTab({ onOpenWordCard }: FavoritesTabProps) {
               <div>
                 <Select>
                   <SelectTrigger>
-                    <SelectValue placeholder="Sort by..." />
+                    <SelectValue placeholder="Sırala..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="recent">Recently Added</SelectItem>
-                    <SelectItem value="alphabetical">Alphabetical</SelectItem>
-                    <SelectItem value="category">Category</SelectItem>
+                    <SelectItem value="recent">Son Eklenenler</SelectItem>
+                    <SelectItem value="alphabetical">Alfabetik</SelectItem>
+                    <SelectItem value="category">Kategoriye Göre</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -254,46 +254,82 @@ export default function FavoritesTab({ onOpenWordCard }: FavoritesTabProps) {
           </CardContent>
         </Card>
 
-        {/* Favorites Grid */}
+        {/* Favorites List */}
         {isLoading ? (
           <div className="text-center py-8">
             <i className="fas fa-spinner fa-spin text-2xl text-muted-foreground"></i>
-            <p className="mt-2 text-muted-foreground">Loading favorites...</p>
+            <p className="mt-2 text-muted-foreground">Favoriler yükleniyor...</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredWords.map((word) => (
-              <Card key={word.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <span className="text-sm font-medium text-primary">{word.article}</span>
-                      <h3 className="text-lg font-semibold">{word.german}</h3>
+          <Card>
+            <CardContent className="p-0">
+              <div className="divide-y divide-gray-200">
+                {filteredWords.map((word, index) => (
+                  <div key={word.id} className="p-4 hover:bg-gray-50 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                        <div className="flex items-center space-x-3">
+                          <span className="text-sm font-medium text-gray-500 w-8">
+                            {index + 1}
+                          </span>
+                          <div>
+                            <div className="flex items-center space-x-2">
+                              <span className={`text-sm font-medium px-2 py-1 rounded ${
+                                word.article === 'der' ? 'bg-blue-100 text-blue-800' :
+                                word.article === 'die' ? 'bg-red-100 text-red-800' :
+                                word.article === 'das' ? 'bg-green-100 text-green-800' :
+                                'bg-yellow-100 text-yellow-800'
+                              }`}>
+                                {word.article || '-'}
+                              </span>
+                              <h3 className="font-semibold text-lg">
+                                {word.german.charAt(0).toUpperCase() + word.german.slice(1)}
+                              </h3>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <p className="text-gray-700 font-medium">{word.turkish}</p>
+                        </div>
+                        
+                        <div>
+                          <p className="text-sm text-gray-600">
+                            <span className="font-medium">Plural:</span> {word.plural || '-'}
+                          </p>
+                          <Badge variant="secondary" className="mt-1">
+                            {word.category}
+                          </Badge>
+                        </div>
+                        
+                        <div className="flex items-center justify-end space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onOpenWordCard?.(word)}
+                            className="text-blue-600 hover:text-blue-700"
+                          >
+                            <i className="fas fa-eye mr-1"></i>
+                            Kartı Gör
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveFromFavorites(word.id)}
+                            disabled={removeFavoriteMutation.isPending}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <i className="fas fa-heart mr-1"></i>
+                            Kaldır
+                          </Button>
+                        </div>
+                      </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleRemoveFromFavorites(word.id)}
-                      disabled={removeFavoriteMutation.isPending}
-                    >
-                      <i className="fas fa-heart text-red-600"></i>
-                    </Button>
                   </div>
-                  <p className="text-muted-foreground mb-2">{word.turkish}</p>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Plural: {word.plural}
-                  </p>
-                  <div className="flex justify-between items-center">
-                    <Badge variant="secondary">{word.category}</Badge>
-                    <Button variant="ghost" size="sm" onClick={() => onOpenWordCard?.(word)}>
-                      <i className="fas fa-external-link-alt mr-1"></i>
-                      View Card
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         {!isLoading && filteredWords.length === 0 && (
