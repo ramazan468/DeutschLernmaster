@@ -6,15 +6,18 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import type { Word } from "@shared/schema";
+import type { Word, FavoriteList } from "@shared/schema";
 
 export default function WordListTab() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [favoriteFilter, setFavoriteFilter] = useState<string>("all");
   const [sortOrder, setSortOrder] = useState<string>("alphabetical");
+  const [selectedWordForFavorite, setSelectedWordForFavorite] = useState<Word | null>(null);
+  const [isAddToFavoriteDialogOpen, setIsAddToFavoriteDialogOpen] = useState(false);
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -29,6 +32,10 @@ export default function WordListTab() {
 
   const { data: categories = [] } = useQuery<string[]>({
     queryKey: ['/api/categories'],
+  });
+
+  const { data: favoriteLists = [] } = useQuery<FavoriteList[]>({
+    queryKey: ['/api/favorite-lists'],
   });
 
   const toggleFavoriteMutation = useMutation({
@@ -71,8 +78,70 @@ export default function WordListTab() {
     },
   });
 
+  const addToListMutation = useMutation({
+    mutationFn: async ({ listId, wordId }: { listId: number; wordId: number }) => {
+      const list = favoriteLists.find(l => l.id === listId);
+      if (!list) throw new Error('List not found');
+      
+      const newWordIds = [...list.wordIds, wordId.toString()];
+      return apiRequest('PUT', `/api/favorite-lists/${listId}`, { 
+        name: list.name, 
+        wordIds: newWordIds 
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/favorite-lists'] });
+      setIsAddToFavoriteDialogOpen(false);
+      setSelectedWordForFavorite(null);
+      toast({
+        title: "Başarılı",
+        description: "Kelime listeye eklendi",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Hata",
+        description: "Kelime listeye eklenemedi",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleToggleFavorite = (word: Word) => {
-    toggleFavoriteMutation.mutate({ id: word.id, isFavorite: word.isFavorite });
+    if (!word.isFavorite) {
+      // If not favorite, show dialog to choose list
+      setSelectedWordForFavorite(word);
+      setIsAddToFavoriteDialogOpen(true);
+    } else {
+      // If already favorite, just toggle off
+      toggleFavoriteMutation.mutate({ id: word.id, isFavorite: word.isFavorite });
+    }
+  };
+
+  const handleAddToGeneralFavorites = () => {
+    if (selectedWordForFavorite) {
+      toggleFavoriteMutation.mutate({ 
+        id: selectedWordForFavorite.id, 
+        isFavorite: selectedWordForFavorite.isFavorite 
+      });
+      setIsAddToFavoriteDialogOpen(false);
+      setSelectedWordForFavorite(null);
+    }
+  };
+
+  const handleAddToSpecificList = (listId: number) => {
+    if (selectedWordForFavorite) {
+      // First make it favorite
+      toggleFavoriteMutation.mutate({ 
+        id: selectedWordForFavorite.id, 
+        isFavorite: selectedWordForFavorite.isFavorite 
+      });
+      // Then add to specific list
+      addToListMutation.mutate({ 
+        listId, 
+        wordId: selectedWordForFavorite.id 
+      });
+    }
   };
 
   const handleDeleteWord = (id: number) => {
@@ -239,6 +308,55 @@ export default function WordListTab() {
           )}
         </CardContent>
       </Card>
+
+      {/* Add to Favorite List Dialog */}
+      <Dialog open={isAddToFavoriteDialogOpen} onOpenChange={setIsAddToFavoriteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Favori Listesine Ekle</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              "{selectedWordForFavorite?.german}" kelimesini hangi listeye eklemek istiyorsunuz?
+            </p>
+            
+            <div className="space-y-2">
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={handleAddToGeneralFavorites}
+              >
+                <i className="fas fa-heart mr-2 text-red-500"></i>
+                Genel Favoriler
+              </Button>
+              
+              {favoriteLists.map((list) => (
+                <Button
+                  key={list.id}
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => handleAddToSpecificList(list.id)}
+                >
+                  <i className="fas fa-bookmark mr-2 text-blue-500"></i>
+                  {list.name} ({list.wordIds.length} kelime)
+                </Button>
+              ))}
+            </div>
+            
+            <div className="flex justify-end space-x-2">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setIsAddToFavoriteDialogOpen(false);
+                  setSelectedWordForFavorite(null);
+                }}
+              >
+                İptal
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

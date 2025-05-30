@@ -1,15 +1,19 @@
 import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import TestTab from "@/components/test-tab";
 import WordListTab from "@/components/word-list-tab";
 import FavoritesTab from "@/components/favorites-tab";
 import CategoriesTab from "@/components/categories-tab";
 import WordCardTab from "@/components/word-card-tab";
 import AddWordTab from "@/components/add-word-tab";
+import type { Word } from "@shared/schema";
 
 type TabType = 'test' | 'wordlist' | 'favorites' | 'categories' | 'wordcard' | 'addword';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<TabType>('test');
+  const [selectedWordForCard, setSelectedWordForCard] = useState<Word | null>(null);
+  const [isWordCardModalOpen, setIsWordCardModalOpen] = useState(false);
 
   const tabs = [
     { id: 'test', label: 'Test', icon: 'clipboard-check' },
@@ -20,12 +24,17 @@ export default function Home() {
     { id: 'addword', label: 'Add Word', icon: 'plus' },
   ];
 
+  const handleOpenWordCard = (word: Word) => {
+    setSelectedWordForCard(word);
+    setIsWordCardModalOpen(true);
+  };
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'test':
         return <TestTab />;
       case 'wordlist':
-        return <WordListTab />;
+        return <WordListTab onOpenWordCard={handleOpenWordCard} />;
       case 'favorites':
         return <FavoritesTab />;
       case 'categories':
