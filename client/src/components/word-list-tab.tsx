@@ -181,6 +181,17 @@ export default function WordListTab({ onOpenWordCard, onEditWord, getArticleColo
     }
   };
 
+  const speakText = (text: string, lang: string = 'de-DE') => {
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = lang;
+      utterance.rate = 0.8;
+      utterance.pitch = 1;
+      utterance.volume = 1;
+      speechSynthesis.speak(utterance);
+    }
+  };
+
   const sortedWords = [...filteredWords].sort((a, b) => {
     switch (sortOrder) {
       case 'alphabetical':
@@ -319,6 +330,17 @@ export default function WordListTab({ onOpenWordCard, onEditWord, getArticleColo
                             disabled={toggleFavoriteMutation.isPending}
                           >
                             <i className={`fas fa-heart ${word.isFavorite ? 'text-red-600' : 'text-gray-400'}`}></i>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              const textToSpeak = word.article ? `${word.article} ${word.german}` : word.german;
+                              speakText(textToSpeak, 'de-DE');
+                            }}
+                            title="Almanca sesli okuma"
+                          >
+                            <i className="fas fa-volume-up text-primary"></i>
                           </Button>
                           <Button
                             variant="ghost"
