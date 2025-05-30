@@ -146,11 +146,11 @@ export default function TestSession({ mode, questionCount, testType, source, sel
 
       case 'wo':
         question = `"${word.article} ${word.german}" için WO? (Nerede?) cevabı nedir?`;
-        correctAnswer = word.wo || "";
+        correctAnswer = (word.wo || "").charAt(0).toUpperCase() + (word.wo || "").slice(1);
         if (type === 'multiple') {
           const otherWo = allWords
             .filter(w => w.id !== word.id && w.wo)
-            .map(w => w.wo!)
+            .map(w => w.wo!.charAt(0).toUpperCase() + w.wo!.slice(1))
             .slice(0, 3);
           options = [...otherWo, correctAnswer].sort(() => Math.random() - 0.5);
         }
@@ -158,11 +158,11 @@ export default function TestSession({ mode, questionCount, testType, source, sel
 
       case 'wohin':
         question = `"${word.article} ${word.german}" için WOHIN? (Nereye?) cevabı nedir?`;
-        correctAnswer = word.wohin || "";
+        correctAnswer = (word.wohin || "").charAt(0).toUpperCase() + (word.wohin || "").slice(1);
         if (type === 'multiple') {
           const otherWohin = allWords
             .filter(w => w.id !== word.id && w.wohin)
-            .map(w => w.wohin!)
+            .map(w => w.wohin!.charAt(0).toUpperCase() + w.wohin!.slice(1))
             .slice(0, 3);
           options = [...otherWohin, correctAnswer].sort(() => Math.random() - 0.5);
         }
@@ -170,11 +170,11 @@ export default function TestSession({ mode, questionCount, testType, source, sel
 
       case 'woher':
         question = `"${word.article} ${word.german}" için WOHER? (Nereden?) cevabı nedir?`;
-        correctAnswer = word.woher || "";
+        correctAnswer = (word.woher || "").charAt(0).toUpperCase() + (word.woher || "").slice(1);
         if (type === 'multiple') {
           const otherWoher = allWords
             .filter(w => w.id !== word.id && w.woher)
-            .map(w => w.woher!)
+            .map(w => w.woher!.charAt(0).toUpperCase() + w.woher!.slice(1))
             .slice(0, 3);
           options = [...otherWoher, correctAnswer].sort(() => Math.random() - 0.5);
         }
