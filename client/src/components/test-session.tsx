@@ -77,18 +77,8 @@ export default function TestSession({ mode, questionCount, testType, source, sel
     }
   }, [filteredWords]);
 
-  const getSourceWords = () => {
-    switch (source) {
-      case 'favorites':
-        return favoriteWords;
-      case 'wordlist':
-      default:
-        return words;
-    }
-  };
-
   const generateQuestions = () => {
-    const sourceWords = getSourceWords();
+    const sourceWords = filteredWords;
     if (sourceWords.length === 0) return;
 
     const shuffled = [...sourceWords].sort(() => Math.random() - 0.5);
