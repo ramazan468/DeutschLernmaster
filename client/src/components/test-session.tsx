@@ -267,28 +267,50 @@ export default function TestSession({ mode, questionCount, testType, source, sel
                 const userAnswer = userAnswers[index] || '';
                 const isCorrect = userAnswer.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim();
                 
+                // Kelimeyi bul
+                const word = allWords.find(w => 
+                  question.question.includes(w.german) || 
+                  question.question.includes(w.turkish) ||
+                  question.correctAnswer === w.article ||
+                  question.correctAnswer === w.plural ||
+                  question.correctAnswer === w.german ||
+                  question.correctAnswer === w.turkish
+                );
+                
                 return (
-                  <div key={index} className={`p-4 rounded-lg border-2 ${isCorrect ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center mb-2">
-                          <span className="text-sm font-medium text-muted-foreground mr-2">Soru {index + 1}:</span>
-                          <i className={`fas ${isCorrect ? 'fa-check text-green-600' : 'fa-times text-red-600'} mr-2`}></i>
-                        </div>
-                        <p className="font-medium mb-2">{question.question}</p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                          <div>
-                            <span className="text-muted-foreground">Sizin cevabınız: </span>
-                            <span className={isCorrect ? 'text-green-700 font-semibold' : 'text-red-700 font-semibold'}>
-                              {userAnswer || 'Boş'}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Doğru cevap: </span>
-                            <span className="text-green-700 font-semibold">{question.correctAnswer}</span>
-                          </div>
+                  <div key={index} className={`p-4 rounded-lg border-2 ${isCorrect ? 'border-green-400 bg-green-100' : 'border-red-400 bg-red-100'}`}>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Soru {index + 1}</span>
+                        <div className={`px-3 py-1 rounded-full text-xs font-bold ${isCorrect ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>
+                          {isCorrect ? '✓ DOĞRU' : '✗ YANLIŞ'}
                         </div>
                       </div>
+                      
+                      <div className="text-sm">
+                        <p className="font-medium mb-2">{question.question}</p>
+                        <div className="space-y-1">
+                          <p><span className="font-medium">Sizin Cevabınız:</span> <span className={isCorrect ? 'text-green-700 font-bold' : 'text-red-700 font-bold'}>{userAnswer || 'Boş'}</span></p>
+                          <p><span className="font-medium">Doğru Cevap:</span> <span className="text-green-700 font-bold">{question.correctAnswer}</span></p>
+                        </div>
+                      </div>
+                      
+                      {word && (
+                        <div className="mt-3 p-3 bg-white/60 rounded border border-gray-200">
+                          <h5 className="font-semibold text-xs text-gray-700 mb-2 uppercase tracking-wide">Kelime Detayları:</h5>
+                          <div className="space-y-1 text-xs">
+                            <p><span className="font-semibold">Almanca:</span> {word.article ? `${word.article} ` : ''}{word.german}</p>
+                            <p><span className="font-semibold">Türkçe:</span> {word.turkish}</p>
+                            {word.plural && <p><span className="font-semibold">Çoğul:</span> {word.plural}</p>}
+                            {word.category && <p><span className="font-semibold">Kategori:</span> {word.category}</p>}
+                            {word.exampleSentence && <p><span className="font-semibold">Örnek Cümle:</span> {word.exampleSentence}</p>}
+                            {word.exampleTranslation && <p><span className="font-semibold">Çeviri:</span> {word.exampleTranslation}</p>}
+                            {word.wo && <p><span className="font-semibold">WO (Nerede?):</span> {word.wo}</p>}
+                            {word.wohin && <p><span className="font-semibold">WOHIN (Nereye?):</span> {word.wohin}</p>}
+                            {word.woher && <p><span className="font-semibold">WOHER (Nereden?):</span> {word.woher}</p>}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
