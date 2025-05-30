@@ -91,14 +91,116 @@ export default function FavoritesTab({ onOpenWordCard }: FavoritesTabProps) {
     },
   });
 
-  const handleCreateList = () => {
-    if (newListName.trim()) {
-      createListMutation.mutate(newListName.trim());
+  const handleCreateList = async () => {
+    if (!newListName.trim()) return;
+    
+    try {
+      await createListMutation.mutateAsync(newListName);
+      setNewListName("");
+      setIsCreateDialogOpen(false);
+      toast({
+        title: "Başarılı",
+        description: "Favori listesi oluşturuldu",
+      });
+    } catch (error) {
+      toast({
+        title: "Hata",
+        description: "Favori listesi oluşturulamadı",
+        variant: "destructive",
+      });
     }
   };
 
   const handleRemoveFromFavorites = (id: number) => {
     removeFavoriteMutation.mutate(id);
+  };
+
+  const createCategoryMutation = useMutation({
+    mutationFn: async (name: string) => {
+      return apiRequest('POST', '/api/categories', { name });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/categories'] });
+    },
+  });
+
+  const updateCategoryMutation = useMutation({
+    mutationFn: async ({ oldName, newName }: { oldName: string; newName: string }) => {
+      return apiRequest('PATCH', `/api/categories/${encodeURIComponent(oldName)}`, { name: newName });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/categories'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/words'] });
+    },
+  });
+
+  const deleteCategoryMutation = useMutation({
+    mutationFn: async (name: string) => {
+      return apiRequest('DELETE', `/api/categories/${encodeURIComponent(name)}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/categories'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/words'] });
+    },
+  });
+
+  const handleCreateCategory = async () => {
+    if (!newCategoryName.trim()) return;
+    
+    try {
+      await createCategoryMutation.mutateAsync(newCategoryName);
+      setNewCategoryName("");
+      toast({
+        title: "Başarılı",
+        description: "Kategori oluşturuldu",
+      });
+    } catch (error) {
+      toast({
+        title: "Hata",
+        description: "Kategori oluşturulamadı",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleUpdateCategory = async (oldName: string) => {
+    if (!editCategoryName.trim()) return;
+    
+    try {
+      await updateCategoryMutation.mutateAsync({ oldName, newName: editCategoryName });
+      setEditingCategory(null);
+      setEditCategoryName("");
+      toast({
+        title: "Başarılı",
+        description: "Kategori güncellendi",
+      });
+    } catch (error) {
+      toast({
+        title: "Hata",
+        description: "Kategori güncellenemedi",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteCategory = async (name: string) => {
+    if (!confirm(`"${name}" kategorisini silmek istediğinizden emin misiniz? Bu kategorideki tüm kelimeler "Genel" kategorisine taşınacak.`)) {
+      return;
+    }
+    
+    try {
+      await deleteCategoryMutation.mutateAsync(name);
+      toast({
+        title: "Başarılı",
+        description: "Kategori silindi",
+      });
+    } catch (error) {
+      toast({
+        title: "Hata",
+        description: "Kategori silinemedi",
+        variant: "destructive",
+      });
+    }
   };
 
   const getDisplayedWords = () => {
