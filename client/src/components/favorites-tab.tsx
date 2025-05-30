@@ -165,9 +165,10 @@ export default function FavoritesTab({ onOpenWordCard }: FavoritesTabProps) {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
+            <div className="space-y-3">
+              {/* Always show "All Favorites" */}
               <div 
-                className={`p-3 rounded-md cursor-pointer transition-colors ${
+                className={`p-3 rounded-lg cursor-pointer transition-colors ${
                   selectedListId === null 
                     ? 'bg-primary text-primary-foreground' 
                     : 'bg-muted hover:bg-muted/80'
@@ -182,10 +183,12 @@ export default function FavoritesTab({ onOpenWordCard }: FavoritesTabProps) {
                   <span className="text-sm">{favoriteWords.length}</span>
                 </div>
               </div>
-              {favoriteLists.map((list) => (
+              
+              {/* Show first 5 lists directly */}
+              {favoriteLists.slice(0, 5).map((list) => (
                 <div 
                   key={list.id} 
-                  className={`p-3 rounded-md cursor-pointer transition-colors ${
+                  className={`p-3 rounded-lg cursor-pointer transition-colors ${
                     selectedListId === list.id 
                       ? 'bg-primary text-primary-foreground' 
                       : 'bg-muted hover:bg-muted/80'
@@ -201,6 +204,30 @@ export default function FavoritesTab({ onOpenWordCard }: FavoritesTabProps) {
                   </div>
                 </div>
               ))}
+              
+              {/* Dropdown for remaining lists if more than 5 */}
+              {favoriteLists.length > 5 && (
+                <Select onValueChange={(value) => setSelectedListId(Number(value))}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={`Diğer Listeler (${favoriteLists.length - 5})`} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {favoriteLists.slice(5).map((list) => (
+                      <SelectItem key={list.id} value={list.id.toString()}>
+                        <div className="flex items-center justify-between w-full">
+                          <span className="flex items-center">
+                            <i className="fas fa-bookmark mr-2"></i>
+                            {list.name}
+                          </span>
+                          <span className="text-sm text-muted-foreground ml-2">
+                            ({list.wordIds.length})
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           </CardContent>
         </Card>
