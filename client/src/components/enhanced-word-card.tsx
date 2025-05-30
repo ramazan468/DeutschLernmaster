@@ -201,17 +201,17 @@ export default function EnhancedWordCard({ word, onClose, getArticleColor }: Enh
         
         <CardContent className="p-8 space-y-8">
           {/* Main Word Information */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="space-y-4">
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border-2 border-black h-24 flex flex-col">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Sparkles className="h-4 w-4 text-blue-600" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="space-y-3">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-3 border-2 border-black h-20 flex flex-col">
+                <div className="flex items-center space-x-2 mb-1">
+                  <Sparkles className="h-3 w-3 text-blue-600" />
                   <label className="text-xs font-semibold text-blue-800">Artikel</label>
                 </div>
                 <div className="flex-1 flex items-center">
                   <Select value={localWord.article || ''} onValueChange={(value) => handleFieldUpdate('article', value)}>
-                    <SelectTrigger className="border-2 border-black bg-white/70">
-                      <SelectValue placeholder="Artikel auswählen" />
+                    <SelectTrigger className="border border-black bg-white/70 text-sm h-8">
+                      <SelectValue placeholder="Artikel" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="der">der</SelectItem>
@@ -222,9 +222,9 @@ export default function EnhancedWordCard({ word, onClose, getArticleColor }: Enh
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border-2 border-black h-24 flex flex-col">
-                <div className="flex items-center space-x-2 mb-2">
-                  <BookOpen className="h-4 w-4 text-green-600" />
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-3 border-2 border-black h-20 flex flex-col">
+                <div className="flex items-center space-x-2 mb-1">
+                  <BookOpen className="h-3 w-3 text-green-600" />
                   <label className="text-xs font-semibold text-green-800">Deutsches Wort</label>
                 </div>
                 <div className="flex-1 flex items-center">
@@ -232,14 +232,14 @@ export default function EnhancedWordCard({ word, onClose, getArticleColor }: Enh
                     value={localWord.german}
                     onSave={(value) => handleFieldUpdate('german', value)}
                     placeholder="Deutsches Wort"
-                    className={`text-sm font-bold bg-white/70 border border-black w-full ${colorClass}`}
+                    className={`text-sm font-bold bg-white/70 border border-black w-full h-8 ${colorClass}`}
                   />
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-xl p-4 border-2 border-black h-24 flex flex-col">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Plus className="h-4 w-4 text-purple-600" />
+              <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-lg p-3 border-2 border-black h-20 flex flex-col">
+                <div className="flex items-center space-x-2 mb-1">
+                  <Plus className="h-3 w-3 text-purple-600" />
                   <label className="text-xs font-semibold text-purple-800">Plural</label>
                 </div>
                 <div className="flex-1 flex items-center">
@@ -247,14 +247,14 @@ export default function EnhancedWordCard({ word, onClose, getArticleColor }: Enh
                     value={localWord.plural}
                     onSave={(value) => handleFieldUpdate('plural', value)}
                     placeholder="Pluralform"
-                    className={`bg-white/70 border border-black w-full text-sm ${colorClass}`}
+                    className={`bg-white/70 border border-black w-full text-sm h-8 ${colorClass}`}
                   />
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-4 border-2 border-black h-24 flex flex-col">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Plus className="h-4 w-4 text-amber-600" />
+              <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-lg p-3 border-2 border-black h-20 flex flex-col">
+                <div className="flex items-center space-x-2 mb-1">
+                  <Plus className="h-3 w-3 text-amber-600" />
                   <label className="text-xs font-semibold text-amber-800">Plural Ek</label>
                 </div>
                 <div className="flex-1 flex items-center">
@@ -262,16 +262,16 @@ export default function EnhancedWordCard({ word, onClose, getArticleColor }: Enh
                     value={localWord.pluralSuffix}
                     onSave={(value) => handleFieldUpdate('pluralSuffix', value)}
                     placeholder="-en, -er, -s"
-                    className="bg-white/70 border border-black w-full text-sm"
+                    className="bg-white/70 border border-black w-full text-sm h-8"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="space-y-4">
-              <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4 border-2 border-black h-24 flex flex-col">
-                <div className="flex items-center space-x-2 mb-2">
-                  <span className="text-lg font-bold">🇹🇷</span>
+            <div className="space-y-3">
+              <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-lg p-3 border-2 border-black h-20 flex flex-col">
+                <div className="flex items-center space-x-2 mb-1">
+                  <span className="text-sm font-bold">🇹🇷</span>
                   <label className="text-xs font-semibold text-orange-800">Türkische Bedeutung</label>
                 </div>
                 <div className="flex-1 flex items-center">
@@ -279,20 +279,20 @@ export default function EnhancedWordCard({ word, onClose, getArticleColor }: Enh
                     value={localWord.turkish}
                     onSave={(value) => handleFieldUpdate('turkish', value)}
                     placeholder="Türkische Übersetzung"
-                    className="text-sm bg-white/70 border border-black w-full"
+                    className="text-sm bg-white/70 border border-black w-full h-8"
                   />
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl p-4 border-2 border-black h-24 flex flex-col">
-                <div className="flex items-center space-x-2 mb-2">
-                  <span className="text-lg">🏷️</span>
+              <div className="bg-gradient-to-br from-gray-50 to-slate-50 rounded-lg p-3 border-2 border-black h-20 flex flex-col">
+                <div className="flex items-center space-x-2 mb-1">
+                  <span className="text-sm">🏷️</span>
                   <label className="text-xs font-semibold text-gray-800">Kategorie</label>
                 </div>
                 <div className="flex-1 flex items-center">
                   <Select value={localWord.category || ''} onValueChange={(value) => handleFieldUpdate('category', value)}>
-                    <SelectTrigger className="border-2 border-black bg-white/70">
-                      <SelectValue placeholder="Kategorie auswählen" />
+                    <SelectTrigger className="border border-black bg-white/70 text-sm h-8">
+                      <SelectValue placeholder="Kategorie" />
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((category) => (
@@ -305,21 +305,20 @@ export default function EnhancedWordCard({ word, onClose, getArticleColor }: Enh
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-pink-50 to-rose-50 rounded-xl p-4 border-2 border-black h-24 flex flex-col">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Heart className="h-4 w-4 text-pink-600" />
+              <div className="bg-gradient-to-br from-pink-50 to-rose-50 rounded-lg p-3 border-2 border-black h-20 flex flex-col">
+                <div className="flex items-center space-x-2 mb-1">
+                  <Heart className="h-3 w-3 text-pink-600" />
                   <label className="text-xs font-semibold text-pink-800">Favori Liste</label>
                 </div>
                 <div className="flex-1 flex items-center">
                   <Select value="" onValueChange={(listId) => {
-                    // Add word to favorite list functionality here
                     toast({
                       title: "Favori Listesine Eklendi",
                       description: `Kelime favori listesine eklendi.`,
                     });
                   }}>
-                    <SelectTrigger className="border-2 border-black bg-white/70">
-                      <SelectValue placeholder="Favori listesine ekle" />
+                    <SelectTrigger className="border border-black bg-white/70 text-sm h-8">
+                      <SelectValue placeholder="Favori" />
                     </SelectTrigger>
                     <SelectContent>
                       {favoriteLists.map((list) => (
@@ -333,55 +332,49 @@ export default function EnhancedWordCard({ word, onClose, getArticleColor }: Enh
               </div>
             </div>
 
-            <div className="space-y-4">
-              <div className="bg-gradient-to-br from-red-50 to-rose-50 rounded-xl p-4 border-2 border-black h-24 flex flex-col">
-                <div className="flex items-center space-x-2 mb-2">
-                  <span className="text-lg">📍</span>
+            <div className="space-y-3">
+              <div className="bg-gradient-to-br from-red-50 to-rose-50 rounded-lg p-3 border-2 border-black h-20 flex flex-col">
+                <div className="flex items-center space-x-2 mb-1">
+                  <span className="text-sm">📍</span>
                   <label className="text-xs font-semibold text-red-800">WO?</label>
                 </div>
-                <div className="flex-1 flex items-center overflow-hidden">
-                  <div className="w-full">
-                    <EditableField
-                      value={localWord.wo}
-                      onSave={(value) => handleFieldUpdate('wo', value)}
-                      placeholder="in der Küche..."
-                      className="bg-white/70 border border-black w-full text-sm"
-                    />
-                  </div>
+                <div className="flex-1 flex items-center">
+                  <EditableField
+                    value={localWord.wo}
+                    onSave={(value) => handleFieldUpdate('wo', value)}
+                    placeholder="in der Küche..."
+                    className="bg-white/70 border border-black w-full text-sm h-8"
+                  />
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-xl p-4 border-2 border-black h-24 flex flex-col">
-                <div className="flex items-center space-x-2 mb-2">
-                  <span className="text-lg">➡️</span>
+              <div className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-lg p-3 border-2 border-black h-20 flex flex-col">
+                <div className="flex items-center space-x-2 mb-1">
+                  <span className="text-sm">➡️</span>
                   <label className="text-xs font-semibold text-teal-800">WOHIN?</label>
                 </div>
-                <div className="flex-1 flex items-center overflow-hidden">
-                  <div className="w-full">
-                    <EditableField
-                      value={localWord.wohin}
-                      onSave={(value) => handleFieldUpdate('wohin', value)}
-                      placeholder="in die Küche..."
-                      className="bg-white/70 border border-black w-full text-sm"
-                    />
-                  </div>
+                <div className="flex-1 flex items-center">
+                  <EditableField
+                    value={localWord.wohin}
+                    onSave={(value) => handleFieldUpdate('wohin', value)}
+                    placeholder="in die Küche..."
+                    className="bg-white/70 border border-black w-full text-sm h-8"
+                  />
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl p-4 border-2 border-black h-24 flex flex-col">
-                <div className="flex items-center space-x-2 mb-2">
-                  <span className="text-lg">⬅️</span>
+              <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-lg p-3 border-2 border-black h-20 flex flex-col">
+                <div className="flex items-center space-x-2 mb-1">
+                  <span className="text-sm">⬅️</span>
                   <label className="text-xs font-semibold text-violet-800">WOHER?</label>
                 </div>
-                <div className="flex-1 flex items-center overflow-hidden">
-                  <div className="w-full">
-                    <EditableField
-                      value={localWord.woher}
-                      onSave={(value) => handleFieldUpdate('woher', value)}
-                      placeholder="aus der Küche..."
-                      className="bg-white/70 border border-black w-full text-sm"
-                    />
-                  </div>
+                <div className="flex-1 flex items-center">
+                  <EditableField
+                    value={localWord.woher}
+                    onSave={(value) => handleFieldUpdate('woher', value)}
+                    placeholder="aus der Küche..."
+                    className="bg-white/70 border border-black w-full text-sm h-8"
+                  />
                 </div>
               </div>
             </div>
