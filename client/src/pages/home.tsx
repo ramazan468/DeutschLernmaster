@@ -36,7 +36,7 @@ export default function Home() {
       case 'wordlist':
         return <WordListTab onOpenWordCard={handleOpenWordCard} />;
       case 'favorites':
-        return <FavoritesTab />;
+        return <FavoritesTab onOpenWordCard={handleOpenWordCard} />;
       case 'categories':
         return <CategoriesTab />;
       case 'wordcard':

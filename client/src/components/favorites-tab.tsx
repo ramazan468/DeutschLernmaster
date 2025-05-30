@@ -11,7 +11,11 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Word, FavoriteList } from "@shared/schema";
 
-export default function FavoritesTab() {
+interface FavoritesTabProps {
+  onOpenWordCard?: (word: Word) => void;
+}
+
+export default function FavoritesTab({ onOpenWordCard }: FavoritesTabProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [newListName, setNewListName] = useState("");
@@ -281,7 +285,7 @@ export default function FavoritesTab() {
                   </p>
                   <div className="flex justify-between items-center">
                     <Badge variant="secondary">{word.category}</Badge>
-                    <Button variant="ghost" size="sm">
+                    <Button variant="ghost" size="sm" onClick={() => onOpenWordCard?.(word)}>
                       <i className="fas fa-external-link-alt mr-1"></i>
                       View Card
                     </Button>
