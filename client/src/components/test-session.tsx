@@ -44,10 +44,10 @@ export default function TestSession({ mode, questionCount, testType, source, onC
   });
 
   useEffect(() => {
-    if (words.length > 0 || favoriteWords.length > 0) {
+    if ((words.length > 0 || favoriteWords.length > 0) && questions.length === 0) {
       generateQuestions();
     }
-  }, [words, favoriteWords, mode, questionCount, source]);
+  }, [words, favoriteWords]);
 
   const getSourceWords = () => {
     switch (source) {
