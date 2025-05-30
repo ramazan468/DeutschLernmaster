@@ -72,6 +72,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/words/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updateData = insertWordSchema.partial().parse(req.body);
+      const word = await storage.updateWord(id, updateData);
+      if (!word) {
+        return res.status(404).json({ message: "Word not found" });
+      }
+      res.json(word);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid word data" });
+    }
+  });
+
   app.delete("/api/words/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
