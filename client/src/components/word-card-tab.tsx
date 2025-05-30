@@ -336,16 +336,11 @@ export default function WordCardTab() {
                     variant="ghost" 
                     size="sm"
                     onClick={() => {
-                      if (cardType === 'turkish') {
-                        // Almanca kelimeyi oku
-                        const textToSpeak = currentWord.article ? `${currentWord.article} ${currentWord.german}` : currentWord.german;
-                        speakText(textToSpeak, 'de-DE');
-                      } else {
-                        // Türkçe kelimeyi oku
-                        speakText(currentWord.turkish, 'tr-TR');
-                      }
+                      // Her zaman Almanca kelimeyi oku
+                      const textToSpeak = currentWord.article ? `${currentWord.article} ${currentWord.german}` : currentWord.german;
+                      speakText(textToSpeak, 'de-DE');
                     }}
-                    title="Sesli okuma"
+                    title="Almanca sesli okuma"
                   >
                     <i className="fas fa-volume-up text-xl text-primary"></i>
                   </Button>
