@@ -83,6 +83,15 @@ export default function TestSession({ mode, questionCount, testType, source, sel
       sourceWords = filteredWords.filter(word => word.exampleSentence && word.exampleTranslation);
     }
     
+    // WO, WOHIN, WOHER modlarında sadece ilgili alanı dolu olan kelimeleri filtrele
+    if (mode === 'wo') {
+      sourceWords = filteredWords.filter(word => word.wo && word.wo.trim() !== '');
+    } else if (mode === 'wohin') {
+      sourceWords = filteredWords.filter(word => word.wohin && word.wohin.trim() !== '');
+    } else if (mode === 'woher') {
+      sourceWords = filteredWords.filter(word => word.woher && word.woher.trim() !== '');
+    }
+    
     if (sourceWords.length === 0) return;
 
     const shuffled = [...sourceWords].sort(() => Math.random() - 0.5);
