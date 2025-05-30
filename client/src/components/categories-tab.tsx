@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+
 import type { Word } from "@shared/schema";
 
 interface CategoriesTabProps {
@@ -11,7 +11,7 @@ interface CategoriesTabProps {
 }
 
 export default function CategoriesTab({ onOpenWordCard }: CategoriesTabProps) {
-  const [openCategories, setOpenCategories] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   
   const { data: categories = [] } = useQuery<string[]>({
     queryKey: ['/api/categories'],
@@ -20,14 +20,6 @@ export default function CategoriesTab({ onOpenWordCard }: CategoriesTabProps) {
   const { data: allWords = [] } = useQuery<Word[]>({
     queryKey: ['/api/words'],
   });
-
-  const toggleCategory = (category: string) => {
-    setOpenCategories(prev => 
-      prev.includes(category) 
-        ? prev.filter(c => c !== category)
-        : [...prev, category]
-    );
-  };
 
   const getCategoryData = (category: string) => {
     const categoryWords = allWords.filter(word => word.category === category);
@@ -79,147 +71,185 @@ export default function CategoriesTab({ onOpenWordCard }: CategoriesTabProps) {
     return 'bg-red-500';
   };
 
+  const getDisplayedWords = () => {
+    if (!selectedCategory) return [];
+    return allWords.filter(word => word.category === selectedCategory);
+  };
+
+  const filteredWords = getDisplayedWords();
+
   return (
-    <div className="space-y-4">
-      {categories.map((category) => {
-        const categoryData = getCategoryData(category);
-        const categoryWords = allWords.filter(word => word.category === category);
-        const isOpen = openCategories.includes(category);
-        
-        return (
-          <Card key={category} className="overflow-hidden">
-            <CardContent className="p-0">
-              {/* Category Header */}
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      {/* Categories Sidebar */}
+      <div className="lg:col-span-1">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Kategoriler</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {/* Show "All Categories" option */}
               <div 
-                className="p-6 cursor-pointer hover:bg-gray-50 transition-colors border-b"
-                onClick={() => toggleCategory(category)}
+                className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                  selectedCategory === null 
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'bg-muted hover:bg-muted/80'
+                }`}
+                onClick={() => setSelectedCategory(null)}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${categoryData.color}`}>
-                      <i className={`fas fa-${categoryData.icon} text-xl`}></i>
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold">{categoryData.name}</h3>
-                      <p className="text-sm text-gray-600">{categoryData.wordCount} kelime</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    <Badge 
-                      variant={categoryData.progress >= 70 ? "default" : "secondary"}
-                      className={categoryData.progress >= 70 ? "bg-green-500" : ""}
-                    >
-                      {categoryData.progress}% öğrenildi
-                    </Badge>
-                    <i className={`fas fa-chevron-${isOpen ? 'up' : 'down'} text-gray-400`}></i>
-                  </div>
-                </div>
-                <div className="mt-4 w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className={`h-2 rounded-full transition-all duration-300 ${getProgressColor(categoryData.progress)}`}
-                    style={{ width: `${categoryData.progress}%` }}
-                  ></div>
+                  <span className="flex items-center">
+                    <i className="fas fa-list mr-2"></i>
+                    Tüm Kategoriler
+                  </span>
+                  <span className="text-sm">{allWords.length}</span>
                 </div>
               </div>
-
-              {/* Category Words List */}
-              <Collapsible open={isOpen}>
-                <CollapsibleContent>
-                  <div className="p-0">
-                    {/* Header */}
-                    <div className="grid grid-cols-7 gap-4 px-6 py-3 bg-gray-50 border-b font-medium text-sm text-gray-700">
-                      <div>Artikel</div>
-                      <div>Kelime</div>
-                      <div>Çoğul</div>
-                      <div>Ek</div>
-                      <div>Kategori</div>
-                      <div className="text-center">Favori</div>
-                      <div className="text-center">İşlemler</div>
-                    </div>
-                    
-                    {/* Words */}
-                    <div className="divide-y divide-gray-200">
-                      {categoryWords.map((word) => (
-                        <div key={word.id} className="p-4 hover:bg-gray-50 transition-colors">
-                          <div className="grid grid-cols-7 gap-4 items-center">
-                            {/* Artikel */}
-                            <div>
-                              <span className={`text-sm font-medium px-2 py-1 rounded min-w-[50px] text-center inline-block ${
-                                word.article === 'der' ? 'bg-blue-100 text-blue-800' :
-                                word.article === 'die' ? 'bg-red-100 text-red-800' :
-                                word.article === 'das' ? 'bg-green-100 text-green-800' :
-                                'bg-yellow-100 text-yellow-800'
-                              }`}>
-                                {word.article || '-'}
-                              </span>
-                            </div>
-                            
-                            {/* Kelime */}
-                            <div>
-                              <h3 className="font-semibold text-lg">
-                                {word.german.charAt(0).toUpperCase() + word.german.slice(1)}
-                              </h3>
-                              <p className="text-sm text-gray-600">{word.turkish}</p>
-                            </div>
-                            
-                            {/* Çoğul */}
-                            <div>
-                              <p className="text-sm text-gray-700">{word.plural || '-'}</p>
-                            </div>
-                            
-                            {/* Ek */}
-                            <div>
-                              <p className="text-sm text-gray-700">{word.pluralSuffix || '-'}</p>
-                            </div>
-                            
-                            {/* Kategori */}
-                            <div>
-                              <Badge variant="secondary">
-                                {word.category}
-                              </Badge>
-                            </div>
-                            
-                            {/* Favori */}
-                            <div className="text-center">
-                              <i className={`fas fa-heart ${word.isFavorite ? 'text-red-500' : 'text-gray-300'}`}></i>
-                            </div>
-                            
-                            {/* İşlemler */}
-                            <div className="flex items-center justify-center space-x-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => onOpenWordCard?.(word)}
-                                className="text-blue-600 hover:text-blue-700"
-                              >
-                                <i className="fas fa-eye"></i>
-                              </Button>
-                            </div>
-                          </div>
+              
+              {/* Show categories */}
+              {categories.map((category) => {
+                const categoryData = getCategoryData(category);
+                return (
+                  <div 
+                    key={category} 
+                    className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                      selectedCategory === category 
+                        ? 'bg-primary text-primary-foreground' 
+                        : 'bg-muted hover:bg-muted/80'
+                    }`}
+                    onClick={() => setSelectedCategory(category)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="flex items-center">
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center mr-2 ${categoryData.color} text-xs`}>
+                          <i className={`fas fa-${categoryData.icon}`}></i>
                         </div>
-                      ))}
+                        {categoryData.name}
+                      </span>
+                      <span className="text-sm text-muted-foreground">{categoryData.wordCount}</span>
+                    </div>
+                    <div className="mt-2 w-full bg-gray-200 rounded-full h-1">
+                      <div 
+                        className={`h-1 rounded-full transition-all duration-300 ${getProgressColor(categoryData.progress)}`}
+                        style={{ width: `${categoryData.progress}%` }}
+                      ></div>
                     </div>
                   </div>
-                </CollapsibleContent>
-              </Collapsible>
-            </CardContent>
-          </Card>
-        );
-      })}
-      
-      {categories.length === 0 && (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center py-8">
-              <i className="fas fa-tags text-4xl text-muted-foreground mb-4"></i>
-              <h3 className="text-lg font-medium mb-2">Kategori bulunamadı</h3>
-              <p className="text-muted-foreground">
-                Kategoriler otomatik olarak oluşturulması için kelime ekleyin.
-              </p>
+                );
+              })}
             </div>
           </CardContent>
         </Card>
-      )}
+      </div>
+
+      {/* Main Content */}
+      <div className="lg:col-span-3">
+        {selectedCategory ? (
+          <Card>
+            <CardContent className="p-0">
+              {/* Header */}
+              <div className="grid grid-cols-7 gap-4 px-4 py-3 bg-gray-50 border-b font-medium text-sm text-gray-700">
+                <div>Artikel</div>
+                <div>Kelime</div>
+                <div>Çoğul</div>
+                <div>Ek</div>
+                <div>Kategori</div>
+                <div className="text-center">Favori</div>
+                <div className="text-center">İşlemler</div>
+              </div>
+              
+              {/* Rows */}
+              <div className="divide-y divide-gray-200">
+                {filteredWords.map((word) => (
+                  <div key={word.id} className="p-4 hover:bg-gray-50 transition-colors">
+                    <div className="grid grid-cols-7 gap-4 items-center">
+                      {/* Artikel */}
+                      <div>
+                        <span className={`text-sm font-medium px-2 py-1 rounded min-w-[50px] text-center inline-block ${
+                          word.article === 'der' ? 'bg-blue-100 text-blue-800' :
+                          word.article === 'die' ? 'bg-red-100 text-red-800' :
+                          word.article === 'das' ? 'bg-green-100 text-green-800' :
+                          'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {word.article || '-'}
+                        </span>
+                      </div>
+                      
+                      {/* Kelime */}
+                      <div>
+                        <h3 className="font-semibold text-lg">
+                          {word.german.charAt(0).toUpperCase() + word.german.slice(1)}
+                        </h3>
+                        <p className="text-sm text-gray-600">{word.turkish}</p>
+                      </div>
+                      
+                      {/* Çoğul */}
+                      <div>
+                        <p className="text-sm text-gray-700">{word.plural || '-'}</p>
+                      </div>
+                      
+                      {/* Ek */}
+                      <div>
+                        <p className="text-sm text-gray-700">{word.pluralSuffix || '-'}</p>
+                      </div>
+                      
+                      {/* Kategori */}
+                      <div>
+                        <Badge variant="secondary">
+                          {word.category}
+                        </Badge>
+                      </div>
+                      
+                      {/* Favori */}
+                      <div className="text-center">
+                        <i className={`fas fa-heart ${word.isFavorite ? 'text-red-500' : 'text-gray-300'}`}></i>
+                      </div>
+                      
+                      {/* İşlemler */}
+                      <div className="flex items-center justify-center space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onOpenWordCard?.(word)}
+                          className="text-blue-600 hover:text-blue-700"
+                        >
+                          <i className="fas fa-eye"></i>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center py-8">
+                <i className="fas fa-tags text-4xl text-muted-foreground mb-4"></i>
+                <h3 className="text-lg font-medium mb-2">Kategori Seçin</h3>
+                <p className="text-muted-foreground">
+                  Sol taraftan bir kategori seçerek kelimeleri görüntüleyin.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {selectedCategory && filteredWords.length === 0 && (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center py-8">
+                <i className="fas fa-empty-set text-4xl text-muted-foreground mb-4"></i>
+                <h3 className="text-lg font-medium mb-2">Bu kategoride kelime yok</h3>
+                <p className="text-muted-foreground">
+                  {selectedCategory} kategorisinde henüz kelime bulunmuyor.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }
