@@ -119,7 +119,7 @@ export default function TestTab() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2">
             {testModes.map((mode) => (
               <div
                 key={mode.id}

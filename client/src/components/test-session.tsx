@@ -261,18 +261,66 @@ export default function TestSession({ mode, questionCount, testType, source, sel
     ).length;
     
     return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="text-center py-8">
-            <i className="fas fa-trophy text-4xl text-yellow-500 mb-4"></i>
-            <h2 className="text-2xl font-bold mb-4">Test Tamamlandı!</h2>
-            <p className="text-lg mb-2">
-              Skorunuz: {correctCount}/{questions.length} ({Math.round((correctCount/questions.length)*100)}%)
-            </p>
-            <p className="text-muted-foreground">Ana sayfaya yönlendiriliyorsunuz...</p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Test Sonucu */}
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center py-8">
+              <i className="fas fa-trophy text-4xl text-yellow-500 mb-4"></i>
+              <h2 className="text-2xl font-bold mb-4">Test Tamamlandı!</h2>
+              <p className="text-lg mb-2">
+                Skorunuz: {correctCount}/{questions.length} ({Math.round((correctCount/questions.length)*100)}%)
+              </p>
+              <div className="flex justify-center gap-4 mt-6">
+                <Button onClick={onExit} variant="outline">
+                  Ana Sayfaya Dön
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Cevap Detayları */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Cevap Detayları</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {questions.map((question, index) => {
+                const userAnswer = userAnswers[index];
+                const isCorrect = userAnswer?.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim();
+                
+                return (
+                  <div key={index} className={`p-4 rounded-lg border-2 ${isCorrect ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center mb-2">
+                          <span className="text-sm font-medium text-muted-foreground mr-2">Soru {index + 1}:</span>
+                          <i className={`fas ${isCorrect ? 'fa-check text-green-600' : 'fa-times text-red-600'} mr-2`}></i>
+                        </div>
+                        <p className="font-medium mb-2">{question.question}</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                          <div>
+                            <span className="text-muted-foreground">Sizin cevabınız: </span>
+                            <span className={isCorrect ? 'text-green-700 font-semibold' : 'text-red-700 font-semibold'}>
+                              {userAnswer || 'Boş'}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Doğru cevap: </span>
+                            <span className="text-green-700 font-semibold">{question.correctAnswer}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
