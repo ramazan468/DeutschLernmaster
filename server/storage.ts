@@ -146,16 +146,23 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getCategories(): Promise<string[]> {
-    // Get categories from both words and categories table
-    const wordCategories = await db.selectDistinct({ category: words.category }).from(words);
-    const storedCategories = await db.select({ name: categories.name }).from(categories);
-    
-    const wordCategoryNames = wordCategories.map(r => r.category);
-    const storedCategoryNames = storedCategories.map(r => r.name);
-    
-    // Combine and deduplicate
-    const allCategories = [...new Set([...wordCategoryNames, ...storedCategoryNames])];
-    return allCategories.sort();
+    try {
+      // Get categories from both words and categories table
+      const wordCategories = await db.selectDistinct({ category: words.category }).from(words);
+      const storedCategories = await db.select({ name: categories.name }).from(categories);
+      
+      const wordCategoryNames = wordCategories.map(r => r.category);
+      const storedCategoryNames = storedCategories.map(r => r.name);
+      
+      // Combine and deduplicate
+      const allCategories = Array.from(new Set([...wordCategoryNames, ...storedCategoryNames]));
+      return allCategories.sort();
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      // Fallback to word categories only
+      const wordCategories = await db.selectDistinct({ category: words.category }).from(words);
+      return wordCategories.map(r => r.category).sort();
+    }
   }
 
   async createCategory(insertCategory: InsertCategory): Promise<Category> {
