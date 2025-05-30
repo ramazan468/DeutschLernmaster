@@ -228,14 +228,12 @@ export default function EnhancedWordCard({ word, onClose, getArticleColor }: Enh
                   <label className="text-xs font-semibold text-green-800">Deutsches Wort</label>
                 </div>
                 <div className="flex-1 flex items-center">
-                  <div className="w-full">
-                    <EditableField
-                      value={localWord.german}
-                      onSave={(value) => handleFieldUpdate('german', value)}
-                      placeholder="Deutsches Wort"
-                      className={`text-sm font-bold bg-white/70 border border-black w-full ${colorClass}`}
-                    />
-                  </div>
+                  <EditableField
+                    value={localWord.german}
+                    onSave={(value) => handleFieldUpdate('german', value)}
+                    placeholder="Deutsches Wort"
+                    className={`text-sm font-bold bg-white/70 border border-black w-full ${colorClass}`}
+                  />
                 </div>
               </div>
 
@@ -245,14 +243,12 @@ export default function EnhancedWordCard({ word, onClose, getArticleColor }: Enh
                   <label className="text-xs font-semibold text-purple-800">Plural</label>
                 </div>
                 <div className="flex-1 flex items-center">
-                  <div className="w-full">
-                    <EditableField
-                      value={localWord.plural}
-                      onSave={(value) => handleFieldUpdate('plural', value)}
-                      placeholder="Pluralform"
-                      className={`bg-white/70 border border-black w-full text-sm ${colorClass}`}
-                    />
-                  </div>
+                  <EditableField
+                    value={localWord.plural}
+                    onSave={(value) => handleFieldUpdate('plural', value)}
+                    placeholder="Pluralform"
+                    className={`bg-white/70 border border-black w-full text-sm ${colorClass}`}
+                  />
                 </div>
               </div>
 
@@ -262,14 +258,12 @@ export default function EnhancedWordCard({ word, onClose, getArticleColor }: Enh
                   <label className="text-xs font-semibold text-amber-800">Plural Ek</label>
                 </div>
                 <div className="flex-1 flex items-center">
-                  <div className="w-full">
-                    <EditableField
-                      value={localWord.pluralSuffix}
-                      onSave={(value) => handleFieldUpdate('pluralSuffix', value)}
-                      placeholder="-en, -er, -s"
-                      className="bg-white/70 border border-black w-full text-sm"
-                    />
-                  </div>
+                  <EditableField
+                    value={localWord.pluralSuffix}
+                    onSave={(value) => handleFieldUpdate('pluralSuffix', value)}
+                    placeholder="-en, -er, -s"
+                    className="bg-white/70 border border-black w-full text-sm"
+                  />
                 </div>
               </div>
             </div>
@@ -281,14 +275,12 @@ export default function EnhancedWordCard({ word, onClose, getArticleColor }: Enh
                   <label className="text-xs font-semibold text-orange-800">Türkische Bedeutung</label>
                 </div>
                 <div className="flex-1 flex items-center">
-                  <div className="w-full">
-                    <EditableField
-                      value={localWord.turkish}
-                      onSave={(value) => handleFieldUpdate('turkish', value)}
-                      placeholder="Türkische Übersetzung"
-                      className="text-sm bg-white/70 border border-black w-full"
-                    />
-                  </div>
+                  <EditableField
+                    value={localWord.turkish}
+                    onSave={(value) => handleFieldUpdate('turkish', value)}
+                    placeholder="Türkische Übersetzung"
+                    className="text-sm bg-white/70 border border-black w-full"
+                  />
                 </div>
               </div>
 
