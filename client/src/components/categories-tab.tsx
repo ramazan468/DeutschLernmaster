@@ -3,6 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 import type { Word } from "@shared/schema";
 
@@ -12,6 +15,8 @@ interface CategoriesTabProps {
 
 export default function CategoriesTab({ onOpenWordCard }: CategoriesTabProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortOrder, setSortOrder] = useState("alphabetical");
   
   const { data: categories = [] } = useQuery<string[]>({
     queryKey: ['/api/categories'],
@@ -20,6 +25,30 @@ export default function CategoriesTab({ onOpenWordCard }: CategoriesTabProps) {
   const { data: allWords = [] } = useQuery<Word[]>({
     queryKey: ['/api/words'],
   });
+
+  // Filter and sort categories
+  const filteredCategories = categories.filter(category =>
+    category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const sortedCategories = [...filteredCategories].sort((a, b) => {
+    if (sortOrder === "alphabetical") {
+      return a.localeCompare(b);
+    } else if (sortOrder === "wordCount") {
+      const wordsInA = allWords.filter(word => word.category === a).length;
+      const wordsInB = allWords.filter(word => word.category === b).length;
+      return wordsInB - wordsInA;
+    } else if (sortOrder === "mostUsed") {
+      const favoritesInA = allWords.filter(word => word.category === a && word.isFavorite).length;
+      const favoritesInB = allWords.filter(word => word.category === b && word.isFavorite).length;
+      return favoritesInB - favoritesInA;
+    }
+    return 0;
+  });
+
+  // Show first 10 categories, rest in dropdown
+  const displayedCategories = sortedCategories.slice(0, 10);
+  const remainingCategories = sortedCategories.slice(10);
 
   const getCategoryData = (category: string) => {
     const categoryWords = allWords.filter(word => word.category === category);
