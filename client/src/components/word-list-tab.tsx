@@ -11,7 +11,11 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Word, FavoriteList } from "@shared/schema";
 
-export default function WordListTab() {
+interface WordListTabProps {
+  onOpenWordCard?: (word: Word) => void;
+}
+
+export default function WordListTab({ onOpenWordCard }: WordListTabProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [favoriteFilter, setFavoriteFilter] = useState<string>("all");
@@ -283,10 +287,7 @@ export default function WordListTab() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => {
-                              // TODO: Open word card modal
-                              console.log('Open word card for:', word);
-                            }}
+                            onClick={() => onOpenWordCard?.(word)}
                           >
                             <i className="fas fa-credit-card text-primary"></i>
                           </Button>
