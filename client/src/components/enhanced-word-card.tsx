@@ -201,160 +201,180 @@ export default function EnhancedWordCard({ word, onClose, getArticleColor }: Enh
           {/* Main Word Information */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="space-y-6">
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-black">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-black h-32 flex flex-col">
                 <div className="flex items-center space-x-2 mb-3">
                   <Sparkles className="h-4 w-4 text-blue-600" />
                   <label className="text-sm font-semibold text-blue-800">Artikel</label>
                 </div>
-                <Select value={localWord.article || ''} onValueChange={(value) => handleFieldUpdate('article', value)}>
-                  <SelectTrigger className="border-2 border-black bg-white/70">
-                    <SelectValue placeholder="Artikel auswählen" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="der">der</SelectItem>
-                    <SelectItem value="die">die</SelectItem>
-                    <SelectItem value="das">das</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="flex-1 flex items-center">
+                  <Select value={localWord.article || ''} onValueChange={(value) => handleFieldUpdate('article', value)}>
+                    <SelectTrigger className="border-2 border-black bg-white/70">
+                      <SelectValue placeholder="Artikel auswählen" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="der">der</SelectItem>
+                      <SelectItem value="die">die</SelectItem>
+                      <SelectItem value="das">das</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-black">
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-black h-32 flex flex-col">
                 <div className="flex items-center space-x-2 mb-3">
                   <BookOpen className="h-4 w-4 text-green-600" />
                   <label className="text-sm font-semibold text-green-800">Deutsches Wort</label>
                 </div>
-                <EditableField
-                  value={localWord.german}
-                  onSave={(value) => handleFieldUpdate('german', value)}
-                  placeholder="Deutsches Wort eingeben"
-                  className={`text-xl font-bold bg-white/70 border-2 border-black ${colorClass}`}
-                />
+                <div className="flex-1 flex items-center">
+                  <EditableField
+                    value={localWord.german}
+                    onSave={(value) => handleFieldUpdate('german', value)}
+                    placeholder="Deutsches Wort eingeben"
+                    className={`text-xl font-bold bg-white/70 border-2 border-black w-full ${colorClass}`}
+                  />
+                </div>
               </div>
 
-              <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-xl p-6 border-2 border-black">
+              <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-xl p-6 border-2 border-black h-32 flex flex-col">
                 <div className="flex items-center space-x-2 mb-3">
                   <Plus className="h-4 w-4 text-purple-600" />
                   <label className="text-sm font-semibold text-purple-800">Plural</label>
                 </div>
-                <EditableField
-                  value={localWord.plural}
-                  onSave={(value) => handleFieldUpdate('plural', value)}
-                  placeholder="Pluralform"
-                  className={`bg-white/70 border-2 border-black ${colorClass}`}
-                />
+                <div className="flex-1 flex items-center">
+                  <EditableField
+                    value={localWord.plural}
+                    onSave={(value) => handleFieldUpdate('plural', value)}
+                    placeholder="Pluralform"
+                    className={`bg-white/70 border-2 border-black w-full ${colorClass}`}
+                  />
+                </div>
               </div>
 
-              <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-6 border-2 border-black">
+              <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-6 border-2 border-black h-32 flex flex-col">
                 <div className="flex items-center space-x-2 mb-3">
                   <Plus className="h-4 w-4 text-amber-600" />
                   <label className="text-sm font-semibold text-amber-800">Plural Ek</label>
                 </div>
-                <EditableField
-                  value={localWord.pluralSuffix}
-                  onSave={(value) => handleFieldUpdate('pluralSuffix', value)}
-                  placeholder="z.B. -en, -er, -s"
-                  className="bg-white/70 border-2 border-black"
-                />
+                <div className="flex-1 flex items-center">
+                  <EditableField
+                    value={localWord.pluralSuffix}
+                    onSave={(value) => handleFieldUpdate('pluralSuffix', value)}
+                    placeholder="z.B. -en, -er, -s"
+                    className="bg-white/70 border-2 border-black w-full"
+                  />
+                </div>
               </div>
             </div>
 
             <div className="space-y-6">
-              <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-6 border-2 border-black">
+              <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-6 border-2 border-black h-32 flex flex-col">
                 <div className="flex items-center space-x-2 mb-3">
                   <span className="text-lg font-bold">🇹🇷</span>
                   <label className="text-sm font-semibold text-orange-800">Türkische Bedeutung</label>
                 </div>
-                <EditableField
-                  value={localWord.turkish}
-                  onSave={(value) => handleFieldUpdate('turkish', value)}
-                  placeholder="Türkische Übersetzung"
-                  className="text-lg bg-white/70 border-2 border-black"
-                />
+                <div className="flex-1 flex items-center">
+                  <EditableField
+                    value={localWord.turkish}
+                    onSave={(value) => handleFieldUpdate('turkish', value)}
+                    placeholder="Türkische Übersetzung"
+                    className="text-lg bg-white/70 border-2 border-black w-full"
+                  />
+                </div>
               </div>
 
-              <div className="bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl p-6 border-2 border-black">
+              <div className="bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl p-6 border-2 border-black h-32 flex flex-col">
                 <div className="flex items-center space-x-2 mb-3">
                   <span className="text-lg">🏷️</span>
                   <label className="text-sm font-semibold text-gray-800">Kategorie</label>
                 </div>
-                <Select value={localWord.category || ''} onValueChange={(value) => handleFieldUpdate('category', value)}>
-                  <SelectTrigger className="border-2 border-black bg-white/70">
-                    <SelectValue placeholder="Kategorie auswählen" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex-1 flex items-center">
+                  <Select value={localWord.category || ''} onValueChange={(value) => handleFieldUpdate('category', value)}>
+                    <SelectTrigger className="border-2 border-black bg-white/70">
+                      <SelectValue placeholder="Kategorie auswählen" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
-              <div className="bg-gradient-to-br from-pink-50 to-rose-50 rounded-xl p-6 border-2 border-black">
+              <div className="bg-gradient-to-br from-pink-50 to-rose-50 rounded-xl p-6 border-2 border-black h-32 flex flex-col">
                 <div className="flex items-center space-x-2 mb-3">
                   <Heart className="h-4 w-4 text-pink-600" />
                   <label className="text-sm font-semibold text-pink-800">Favori Liste</label>
                 </div>
-                <Select value="" onValueChange={(listId) => {
-                  // Add word to favorite list functionality here
-                  toast({
-                    title: "Favori Listesine Eklendi",
-                    description: `Kelime favori listesine eklendi.`,
-                  });
-                }}>
-                  <SelectTrigger className="border-2 border-black bg-white/70">
-                    <SelectValue placeholder="Favori listesine ekle" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {favoriteLists.map((list) => (
-                      <SelectItem key={list.id} value={list.id.toString()}>
-                        {list.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex-1 flex items-center">
+                  <Select value="" onValueChange={(listId) => {
+                    // Add word to favorite list functionality here
+                    toast({
+                      title: "Favori Listesine Eklendi",
+                      description: `Kelime favori listesine eklendi.`,
+                    });
+                  }}>
+                    <SelectTrigger className="border-2 border-black bg-white/70">
+                      <SelectValue placeholder="Favori listesine ekle" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {favoriteLists.map((list) => (
+                        <SelectItem key={list.id} value={list.id.toString()}>
+                          {list.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
 
             <div className="space-y-6">
-              <div className="bg-gradient-to-br from-red-50 to-rose-50 rounded-xl p-6 border-2 border-black">
+              <div className="bg-gradient-to-br from-red-50 to-rose-50 rounded-xl p-6 border-2 border-black h-32 flex flex-col">
                 <div className="flex items-center space-x-2 mb-3">
                   <span className="text-lg">📍</span>
                   <label className="text-sm font-semibold text-red-800">WO? (Wo ist es?)</label>
                 </div>
-                <EditableField
-                  value={localWord.wo}
-                  onSave={(value) => handleFieldUpdate('wo', value)}
-                  placeholder="z.B. in der Küche, im Garten"
-                  className="bg-white/70 border-2 border-black"
-                />
+                <div className="flex-1 flex items-center">
+                  <EditableField
+                    value={localWord.wo}
+                    onSave={(value) => handleFieldUpdate('wo', value)}
+                    placeholder="z.B. in der Küche, im Garten"
+                    className="bg-white/70 border-2 border-black w-full"
+                  />
+                </div>
               </div>
 
-              <div className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-xl p-6 border-2 border-black">
+              <div className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-xl p-6 border-2 border-black h-32 flex flex-col">
                 <div className="flex items-center space-x-2 mb-3">
                   <span className="text-lg">➡️</span>
                   <label className="text-sm font-semibold text-teal-800">WOHIN? (Wohin geht es?)</label>
                 </div>
-                <EditableField
-                  value={localWord.wohin}
-                  onSave={(value) => handleFieldUpdate('wohin', value)}
-                  placeholder="z.B. in die Küche, an den Strand"
-                  className="bg-white/70 border-2 border-black"
-                />
+                <div className="flex-1 flex items-center">
+                  <EditableField
+                    value={localWord.wohin}
+                    onSave={(value) => handleFieldUpdate('wohin', value)}
+                    placeholder="z.B. in die Küche, an den Strand"
+                    className="bg-white/70 border-2 border-black w-full"
+                  />
+                </div>
               </div>
 
-              <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl p-6 border-2 border-black">
+              <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl p-6 border-2 border-black h-32 flex flex-col">
                 <div className="flex items-center space-x-2 mb-3">
                   <span className="text-lg">⬅️</span>
                   <label className="text-sm font-semibold text-violet-800">WOHER? (Woher kommt es?)</label>
                 </div>
-                <EditableField
-                  value={localWord.woher}
-                  onSave={(value) => handleFieldUpdate('woher', value)}
-                  placeholder="z.B. aus der Küche, vom Strand"
-                  className="bg-white/70 border-2 border-black"
-                />
+                <div className="flex-1 flex items-center">
+                  <EditableField
+                    value={localWord.woher}
+                    onSave={(value) => handleFieldUpdate('woher', value)}
+                    placeholder="z.B. aus der Küche, vom Strand"
+                    className="bg-white/70 border-2 border-black w-full"
+                  />
+                </div>
               </div>
             </div>
           </div>
