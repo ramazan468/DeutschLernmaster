@@ -16,6 +16,7 @@ interface CategoriesTabProps {
 export default function CategoriesTab({ onOpenWordCard }: CategoriesTabProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [wordSearchTerm, setWordSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState("alphabetical");
   
   const { data: categories = [] } = useQuery<string[]>({
@@ -102,7 +103,18 @@ export default function CategoriesTab({ onOpenWordCard }: CategoriesTabProps) {
 
   const getDisplayedWords = () => {
     if (!selectedCategory) return [];
-    return allWords.filter(word => word.category === selectedCategory);
+    let words = allWords.filter(word => word.category === selectedCategory);
+    
+    // Apply word search filter
+    if (wordSearchTerm.trim()) {
+      words = words.filter(word => 
+        word.german.toLowerCase().includes(wordSearchTerm.toLowerCase()) ||
+        word.turkish.toLowerCase().includes(wordSearchTerm.toLowerCase()) ||
+        (word.plural && word.plural.toLowerCase().includes(wordSearchTerm.toLowerCase()))
+      );
+    }
+    
+    return words;
   };
 
   const filteredWords = getDisplayedWords();
@@ -209,7 +221,15 @@ export default function CategoriesTab({ onOpenWordCard }: CategoriesTabProps) {
               
               {/* Rows */}
               <div className="divide-y divide-gray-200">
-                {filteredWords.map((word) => (
+                {filteredWords.length === 0 ? (
+                  <div className="text-center py-8">
+                    <i className="fas fa-search text-2xl text-muted-foreground"></i>
+                    <p className="mt-2 text-muted-foreground">
+                      {wordSearchTerm ? "Aradığınız kelime bulunamadı" : "Bu kategoride kelime bulunmuyor"}
+                    </p>
+                  </div>
+                ) : (
+                  filteredWords.map((word) => (
                   <div key={word.id} className="p-4 hover:bg-gray-50 transition-colors">
                     <div className="grid grid-cols-7 gap-4 items-center">
                       {/* Artikel */}
@@ -267,7 +287,8 @@ export default function CategoriesTab({ onOpenWordCard }: CategoriesTabProps) {
                       </div>
                     </div>
                   </div>
-                ))}
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
