@@ -41,6 +41,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createWord(insertWord: InsertWord): Promise<Word> {
+    // Check if word already exists
+    const existingWord = await db
+      .select()
+      .from(words)
+      .where(eq(words.german, insertWord.german));
+    
+    if (existingWord.length > 0) {
+      // Return existing word instead of creating duplicate
+      return existingWord[0];
+    }
+    
     const [word] = await db
       .insert(words)
       .values(insertWord)
