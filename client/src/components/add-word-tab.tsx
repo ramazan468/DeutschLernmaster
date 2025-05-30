@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,11 @@ export default function AddWordTab() {
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  // Kategorileri yükle
+  const { data: categories = [] } = useQuery<string[]>({
+    queryKey: ['/api/categories'],
+  });
 
   const form = useForm<InsertWord>({
     resolver: zodResolver(insertWordSchema),
@@ -327,13 +332,11 @@ export default function AddWordTab() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Animals">Animals</SelectItem>
-                        <SelectItem value="Food">Food & Drinks</SelectItem>
-                        <SelectItem value="Home">Home & Family</SelectItem>
-                        <SelectItem value="Colors">Colors</SelectItem>
-                        <SelectItem value="Travel">Travel</SelectItem>
-                        <SelectItem value="Work">Work</SelectItem>
-                        <SelectItem value="School">School</SelectItem>
+                        {categories.map((category) => (
+                          <SelectItem key={category} value={category}>
+                            {category}
+                          </SelectItem>
+                        ))}
                         <SelectItem value="Other">Other</SelectItem>
                       </SelectContent>
                     </Select>
