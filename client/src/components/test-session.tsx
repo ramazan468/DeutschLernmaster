@@ -21,11 +21,13 @@ interface TestSessionProps {
   questionCount: number;
   testType: TestType;
   source: TestSource;
+  selectedCategory?: string;
+  selectedFavoriteList?: string;
   onComplete: (score: number, totalQuestions: number) => void;
   onExit: () => void;
 }
 
-export default function TestSession({ mode, questionCount, testType, source, onComplete, onExit }: TestSessionProps) {
+export default function TestSession({ mode, questionCount, testType, source, selectedCategory, selectedFavoriteList, onComplete, onExit }: TestSessionProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [fillAnswer, setFillAnswer] = useState("");
@@ -34,20 +36,46 @@ export default function TestSession({ mode, questionCount, testType, source, onC
   const [showResult, setShowResult] = useState(false);
   const [isAnswered, setIsAnswered] = useState(false);
 
-  const { data: words = [] } = useQuery<Word[]>({
+  const { data: allWords = [] } = useQuery<Word[]>({
     queryKey: ['/api/words'],
   });
 
   const { data: favoriteWords = [] } = useQuery<Word[]>({
     queryKey: ['/api/favorites'],
-    enabled: source === 'favorites'
+    enabled: source === 'favorites' && selectedFavoriteList === 'all'
   });
 
+  const { data: favoriteLists = [] } = useQuery({
+    queryKey: ['/api/favorite-lists'],
+    enabled: source === 'favorites' && selectedFavoriteList !== 'all'
+  });
+
+  // Get the filtered words based on source and selections
+  const getFilteredWords = (): Word[] => {
+    if (source === 'wordlist') {
+      return allWords;
+    } else if (source === 'category' && selectedCategory) {
+      return allWords.filter(word => word.category === selectedCategory);
+    } else if (source === 'favorites') {
+      if (selectedFavoriteList === 'all') {
+        return favoriteWords;
+      } else if (selectedFavoriteList && favoriteLists.length > 0) {
+        const selectedList = favoriteLists.find((list: any) => list.id.toString() === selectedFavoriteList);
+        if (selectedList) {
+          return allWords.filter(word => selectedList.wordIds.includes(word.id));
+        }
+      }
+    }
+    return [];
+  };
+
+  const filteredWords = getFilteredWords();
+
   useEffect(() => {
-    if ((words.length > 0 || favoriteWords.length > 0) && questions.length === 0) {
+    if (filteredWords.length > 0 && questions.length === 0) {
       generateQuestions();
     }
-  }, [words, favoriteWords]);
+  }, [filteredWords]);
 
   const getSourceWords = () => {
     switch (source) {

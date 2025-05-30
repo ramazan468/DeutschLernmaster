@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,10 +17,20 @@ export default function TestTab() {
   const [customCount, setCustomCount] = useState<string>('');
   const [testType, setTestType] = useState<TestType>('multiple');
   const [testSource, setTestSource] = useState<TestSource>('wordlist');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedFavoriteList, setSelectedFavoriteList] = useState<string>('');
   const [isTestActive, setIsTestActive] = useState(false);
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  const { data: categories = [] } = useQuery<string[]>({
+    queryKey: ['/api/categories'],
+  });
+
+  const { data: favoriteLists = [] } = useQuery({
+    queryKey: ['/api/favorite-lists'],
+  });
 
   const testModes = [
     { id: 'artikel', label: 'Artikel', icon: 'font' },
@@ -90,6 +100,8 @@ export default function TestTab() {
         questionCount={finalCount}
         testType={testType}
         source={testSource}
+        selectedCategory={selectedCategory}
+        selectedFavoriteList={selectedFavoriteList}
         onComplete={handleTestComplete}
         onExit={handleExitTest}
       />
@@ -188,17 +200,60 @@ export default function TestTab() {
             {/* Test Source */}
             <div>
               <Label className="text-sm font-medium mb-3 block">Test Source</Label>
-              <Select value={testSource} onValueChange={(value) => setTestSource(value as TestSource)}>
+              <Select value={testSource} onValueChange={(value) => {
+                setTestSource(value as TestSource);
+                setSelectedCategory('');
+                setSelectedFavoriteList('');
+              }}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="wordlist">Word List</SelectItem>
-                  <SelectItem value="category">Category</SelectItem>
-                  <SelectItem value="favorites">Favorites</SelectItem>
+                  <SelectItem value="wordlist">Tüm Kelimeler</SelectItem>
+                  <SelectItem value="category">Kategori</SelectItem>
+                  <SelectItem value="favorites">Favori Liste</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Category Selection */}
+            {testSource === 'category' && (
+              <div>
+                <Label className="text-sm font-medium mb-3 block">Kategori Seç</Label>
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Bir kategori seçin..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Favorite List Selection */}
+            {testSource === 'favorites' && (
+              <div>
+                <Label className="text-sm font-medium mb-3 block">Favori Liste Seç</Label>
+                <Select value={selectedFavoriteList} onValueChange={setSelectedFavoriteList}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Bir favori liste seçin..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tüm Favoriler</SelectItem>
+                    {favoriteLists.map((list) => (
+                      <SelectItem key={list.id} value={list.id.toString()}>
+                        {list.name} ({list.wordIds.length} kelime)
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {/* Test Summary */}
             <Card className="bg-muted/50">
@@ -208,14 +263,28 @@ export default function TestTab() {
                   <div>Mode: <span className="text-foreground">{testModes.find(m => m.id === selectedTestMode)?.label}</span></div>
                   <div>Questions: <span className="text-foreground">{customCount || questionCount}</span></div>
                   <div>Type: <span className="text-foreground">{testType === 'multiple' ? 'Multiple Choice' : testType === 'fill' ? 'Fill in the Blank' : 'Mixed'}</span></div>
-                  <div>Source: <span className="text-foreground">{testSource === 'wordlist' ? 'Word List' : testSource === 'category' ? 'Category' : 'Favorites'}</span></div>
+                  <div>Source: <span className="text-foreground">
+                    {testSource === 'wordlist' ? 'Tüm Kelimeler' : 
+                     testSource === 'category' ? (selectedCategory ? `Kategori: ${selectedCategory}` : 'Kategori (seçilmedi)') : 
+                     testSource === 'favorites' ? (selectedFavoriteList ? 
+                       (selectedFavoriteList === 'all' ? 'Tüm Favoriler' : 
+                        favoriteLists.find(l => l.id.toString() === selectedFavoriteList)?.name || 'Favori Liste') 
+                       : 'Favori Liste (seçilmedi)') : 'Bilinmeyen'}
+                  </span></div>
                 </div>
               </CardContent>
             </Card>
 
-            <Button onClick={handleStartTest} className="w-full">
+            <Button 
+              onClick={handleStartTest} 
+              className="w-full"
+              disabled={
+                (testSource === 'category' && !selectedCategory) ||
+                (testSource === 'favorites' && !selectedFavoriteList)
+              }
+            >
               <i className="fas fa-play mr-2"></i>
-              Start Test
+              Testi Başlat
             </Button>
           </CardContent>
         </Card>
