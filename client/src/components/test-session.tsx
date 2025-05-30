@@ -115,9 +115,9 @@ export default function TestSession({ mode, questionCount, testType, source, sel
     switch (mode) {
       case 'artikel':
         question = `"${word.german}" kelimesinin artikeli nedir?`;
-        correctAnswer = (word.article || "").charAt(0).toUpperCase() + (word.article || "").slice(1);
+        correctAnswer = word.article || "";
         if (type === 'multiple') {
-          options = ['Der', 'Die', 'Das'].filter(article => article !== correctAnswer);
+          options = ['der', 'die', 'das'].filter(article => article !== correctAnswer);
           options.push(correctAnswer);
           options.sort(() => Math.random() - 0.5);
         }
@@ -125,11 +125,11 @@ export default function TestSession({ mode, questionCount, testType, source, sel
 
       case 'plural':
         question = `"${word.article} ${word.german}" kelimesinin çoğulu nedir?`;
-        correctAnswer = (word.plural || "").charAt(0).toUpperCase() + (word.plural || "").slice(1);
+        correctAnswer = word.plural || "";
         if (type === 'multiple') {
           const otherPlurals = allWords
             .filter(w => w.id !== word.id && w.plural)
-            .map(w => w.plural!.charAt(0).toUpperCase() + w.plural!.slice(1))
+            .map(w => w.plural!)
             .slice(0, 3);
           options = [...otherPlurals, correctAnswer].sort(() => Math.random() - 0.5);
         }
@@ -137,11 +137,11 @@ export default function TestSession({ mode, questionCount, testType, source, sel
 
       case 'tr-de':
         question = `"${word.turkish}" kelimesinin Almancası nedir?`;
-        correctAnswer = `${(word.article || "").charAt(0).toUpperCase() + (word.article || "").slice(1)} ${word.german.charAt(0).toUpperCase() + word.german.slice(1)}`;
+        correctAnswer = `${word.article} ${word.german}`;
         if (type === 'multiple') {
           const otherGerman = allWords
             .filter(w => w.id !== word.id)
-            .map(w => `${(w.article || "").charAt(0).toUpperCase() + (w.article || "").slice(1)} ${w.german.charAt(0).toUpperCase() + w.german.slice(1)}`)
+            .map(w => `${w.article} ${w.german}`)
             .slice(0, 3);
           options = [...otherGerman, correctAnswer].sort(() => Math.random() - 0.5);
         }
@@ -149,11 +149,11 @@ export default function TestSession({ mode, questionCount, testType, source, sel
 
       case 'de-tr':
         question = `"${word.article} ${word.german}" kelimesinin Türkçesi nedir?`;
-        correctAnswer = word.turkish.charAt(0).toUpperCase() + word.turkish.slice(1);
+        correctAnswer = word.turkish;
         if (type === 'multiple') {
           const otherTurkish = allWords
             .filter(w => w.id !== word.id)
-            .map(w => w.turkish.charAt(0).toUpperCase() + w.turkish.slice(1))
+            .map(w => w.turkish)
             .slice(0, 3);
           options = [...otherTurkish, correctAnswer].sort(() => Math.random() - 0.5);
         }
@@ -161,11 +161,11 @@ export default function TestSession({ mode, questionCount, testType, source, sel
 
       case 'wo':
         question = `"${word.article} ${word.german}" için WO? (Nerede?) cevabı nedir?`;
-        correctAnswer = (word.wo || "").charAt(0).toUpperCase() + (word.wo || "").slice(1);
+        correctAnswer = word.wo || "";
         if (type === 'multiple') {
           const otherWo = allWords
             .filter(w => w.id !== word.id && w.wo)
-            .map(w => w.wo!.charAt(0).toUpperCase() + w.wo!.slice(1))
+            .map(w => w.wo!)
             .slice(0, 3);
           options = [...otherWo, correctAnswer].sort(() => Math.random() - 0.5);
         }
@@ -173,11 +173,11 @@ export default function TestSession({ mode, questionCount, testType, source, sel
 
       case 'wohin':
         question = `"${word.article} ${word.german}" için WOHIN? (Nereye?) cevabı nedir?`;
-        correctAnswer = (word.wohin || "").charAt(0).toUpperCase() + (word.wohin || "").slice(1);
+        correctAnswer = word.wohin || "";
         if (type === 'multiple') {
           const otherWohin = allWords
             .filter(w => w.id !== word.id && w.wohin)
-            .map(w => w.wohin!.charAt(0).toUpperCase() + w.wohin!.slice(1))
+            .map(w => w.wohin!)
             .slice(0, 3);
           options = [...otherWohin, correctAnswer].sort(() => Math.random() - 0.5);
         }
@@ -185,11 +185,11 @@ export default function TestSession({ mode, questionCount, testType, source, sel
 
       case 'woher':
         question = `"${word.article} ${word.german}" için WOHER? (Nereden?) cevabı nedir?`;
-        correctAnswer = (word.woher || "").charAt(0).toUpperCase() + (word.woher || "").slice(1);
+        correctAnswer = word.woher || "";
         if (type === 'multiple') {
           const otherWoher = allWords
             .filter(w => w.id !== word.id && w.woher)
-            .map(w => w.woher!.charAt(0).toUpperCase() + w.woher!.slice(1))
+            .map(w => w.woher!)
             .slice(0, 3);
           options = [...otherWoher, correctAnswer].sort(() => Math.random() - 0.5);
         }
@@ -197,11 +197,11 @@ export default function TestSession({ mode, questionCount, testType, source, sel
 
       case 'sentence':
         question = `Bu cümleyi Almancaya çevirin: "${word.exampleTranslation || word.turkish}"`;
-        correctAnswer = (word.exampleSentence || word.german).charAt(0).toUpperCase() + (word.exampleSentence || word.german).slice(1);
+        correctAnswer = word.exampleSentence || word.german;
         if (type === 'multiple') {
           const otherSentences = allWords
             .filter(w => w.id !== word.id && w.exampleSentence)
-            .map(w => w.exampleSentence!.charAt(0).toUpperCase() + w.exampleSentence!.slice(1))
+            .map(w => w.exampleSentence!)
             .slice(0, 3);
           options = [...otherSentences, correctAnswer].sort(() => Math.random() - 0.5);
         }
@@ -209,7 +209,7 @@ export default function TestSession({ mode, questionCount, testType, source, sel
 
       default:
         question = `"${word.turkish}" kelimesinin Almancası nedir?`;
-        correctAnswer = word.german.charAt(0).toUpperCase() + word.german.slice(1);
+        correctAnswer = word.german;
     }
 
     return {
