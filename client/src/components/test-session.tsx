@@ -163,11 +163,15 @@ export default function TestSession({ mode, questionCount, testType, source, sel
         question = `"${word.article} ${word.german}" için WO? (Nerede?) cevabı nedir?`;
         correctAnswer = word.wo || "";
         if (type === 'multiple') {
-          const otherWo = allWords
-            .filter(w => w.id !== word.id && w.wo)
-            .map(w => w.wo!)
-            .slice(0, 3);
-          options = [...otherWo, correctAnswer].sort(() => Math.random() - 0.5);
+          const woOptions = [
+            'im Haus', 'in der Schule', 'auf dem Tisch', 'an der Wand', 
+            'im Garten', 'in der Küche', 'auf der Straße', 'am Fenster',
+            'im Zimmer', 'in der Stadt', 'auf dem Platz', 'an der Tür',
+            'im Park', 'in der Nähe', 'auf dem Boden', 'am Computer'
+          ];
+          const availableOptions = woOptions.filter(opt => opt !== correctAnswer);
+          const randomOptions = availableOptions.sort(() => Math.random() - 0.5).slice(0, 3);
+          options = [...randomOptions, correctAnswer].sort(() => Math.random() - 0.5);
         }
         break;
 
@@ -175,11 +179,15 @@ export default function TestSession({ mode, questionCount, testType, source, sel
         question = `"${word.article} ${word.german}" için WOHIN? (Nereye?) cevabı nedir?`;
         correctAnswer = word.wohin || "";
         if (type === 'multiple') {
-          const otherWohin = allWords
-            .filter(w => w.id !== word.id && w.wohin)
-            .map(w => w.wohin!)
-            .slice(0, 3);
-          options = [...otherWohin, correctAnswer].sort(() => Math.random() - 0.5);
+          const wohinOptions = [
+            'ins Haus', 'in die Schule', 'auf den Tisch', 'an die Wand',
+            'in den Garten', 'in die Küche', 'auf die Straße', 'ans Fenster',
+            'ins Zimmer', 'in die Stadt', 'auf den Platz', 'an die Tür',
+            'in den Park', 'in die Nähe', 'auf den Boden', 'zum Computer'
+          ];
+          const availableOptions = wohinOptions.filter(opt => opt !== correctAnswer);
+          const randomOptions = availableOptions.sort(() => Math.random() - 0.5).slice(0, 3);
+          options = [...randomOptions, correctAnswer].sort(() => Math.random() - 0.5);
         }
         break;
 
@@ -187,11 +195,15 @@ export default function TestSession({ mode, questionCount, testType, source, sel
         question = `"${word.article} ${word.german}" için WOHER? (Nereden?) cevabı nedir?`;
         correctAnswer = word.woher || "";
         if (type === 'multiple') {
-          const otherWoher = allWords
-            .filter(w => w.id !== word.id && w.woher)
-            .map(w => w.woher!)
-            .slice(0, 3);
-          options = [...otherWoher, correctAnswer].sort(() => Math.random() - 0.5);
+          const woherOptions = [
+            'aus dem Haus', 'aus der Schule', 'vom Tisch', 'von der Wand',
+            'aus dem Garten', 'aus der Küche', 'von der Straße', 'vom Fenster',
+            'aus dem Zimmer', 'aus der Stadt', 'vom Platz', 'von der Tür',
+            'aus dem Park', 'aus der Nähe', 'vom Boden', 'vom Computer'
+          ];
+          const availableOptions = woherOptions.filter(opt => opt !== correctAnswer);
+          const randomOptions = availableOptions.sort(() => Math.random() - 0.5).slice(0, 3);
+          options = [...randomOptions, correctAnswer].sort(() => Math.random() - 0.5);
         }
         break;
 
