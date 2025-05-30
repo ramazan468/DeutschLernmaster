@@ -165,7 +165,7 @@ export default function TestSession({ mode, questionCount, testType, source, sel
         if (type === 'multiple') {
           // Kelime sabit kalacak, sadece ön ekler değişecek
           const baseWord = word.german;
-          const woPrepositions = ['im', 'in der', 'in dem', 'auf dem', 'auf der', 'an der', 'an dem', 'am', 'beim', 'zur', 'zum'];
+          const woPrepositions = ['im', 'in der', 'auf dem', 'auf der', 'an der', 'am', 'beim', 'zur', 'zum'];
           
           // Doğru cevaptan ön eki çıkar
           let correctPreposition = '';
@@ -191,7 +191,7 @@ export default function TestSession({ mode, questionCount, testType, source, sel
         if (type === 'multiple') {
           // Kelime sabit kalacak, sadece ön ekler değişecek
           const baseWord = word.german;
-          const wohinPrepositions = ['ins', 'in die', 'in den', 'auf den', 'auf die', 'an die', 'an den', 'ans', 'zum', 'zur'];
+          const wohinPrepositions = ['ins', 'in die', 'in den', 'auf den', 'auf die', 'an die', 'an den', 'zum', 'zur'];
           
           // Doğru cevaptan ön eki çıkar
           let correctPreposition = '';
@@ -217,7 +217,7 @@ export default function TestSession({ mode, questionCount, testType, source, sel
         if (type === 'multiple') {
           // Kelime sabit kalacak, sadece ön ekler değişecek
           const baseWord = word.german;
-          const woherPrepositions = ['aus dem', 'aus der', 'vom', 'von der', 'von dem'];
+          const woherPrepositions = ['aus dem', 'aus der', 'vom', 'von der'];
           
           // Doğru cevaptan ön eki çıkar
           let correctPreposition = '';
