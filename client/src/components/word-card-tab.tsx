@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,27 +17,51 @@ export default function WordCardTab() {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
 
-  const { data: words = [] } = useQuery<Word[]>({
-    queryKey: ['/api/words', { 
-      search: searchTerm, 
-      category: selectedCategory === 'all' ? undefined : selectedCategory, 
-      favorites: favoriteFilter === 'all' ? undefined : favoriteFilter 
-    }],
+  const { data: allWords = [] } = useQuery<Word[]>({
+    queryKey: ['/api/words'],
+  });
+
+  const { data: favoriteWords = [] } = useQuery<Word[]>({
+    queryKey: ['/api/favorites'],
   });
 
   const { data: categories = [] } = useQuery<string[]>({
     queryKey: ['/api/categories'],
   });
 
-  const currentWord = words[currentCardIndex];
-  const progress = words.length > 0 ? ((currentCardIndex + 1) / words.length) * 100 : 0;
+  // Filter words based on current filters
+  const filteredWords = useMemo(() => {
+    let words = favoriteFilter === 'true' ? favoriteWords : allWords;
+
+    if (searchTerm) {
+      words = words.filter(word => 
+        word.german.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        word.turkish.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (selectedCategory !== 'all') {
+      words = words.filter(word => word.category === selectedCategory);
+    }
+
+    return words;
+  }, [allWords, favoriteWords, searchTerm, selectedCategory, favoriteFilter]);
+
+  const currentWord = filteredWords[currentCardIndex];
+  const progress = filteredWords.length > 0 ? ((currentCardIndex + 1) / filteredWords.length) * 100 : 0;
+
+  // Reset current card index when filters change
+  useEffect(() => {
+    setCurrentCardIndex(0);
+    setIsFlipped(false);
+  }, [searchTerm, selectedCategory, favoriteFilter]);
 
   const handleFlipCard = () => {
     setIsFlipped(!isFlipped);
   };
 
   const handleNextCard = () => {
-    if (currentCardIndex < words.length - 1) {
+    if (currentCardIndex < filteredWords.length - 1) {
       setCurrentCardIndex(currentCardIndex + 1);
       setIsFlipped(false);
     }
@@ -49,6 +73,38 @@ export default function WordCardTab() {
       setIsFlipped(false);
     }
   };
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      switch (event.key) {
+        case 'ArrowLeft':
+          event.preventDefault();
+          handlePreviousCard();
+          break;
+        case 'ArrowRight':
+          event.preventDefault();
+          handleNextCard();
+          break;
+        case ' ':
+        case 'Spacebar':
+          event.preventDefault();
+          handleFlipCard();
+          break;
+        case 'ArrowUp':
+          event.preventDefault();
+          if (isFlipped) handleCardAction('correct');
+          break;
+        case 'ArrowDown':
+          event.preventDefault();
+          if (isFlipped) handleCardAction('incorrect');
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentCardIndex, filteredWords.length, isFlipped]);
 
   const handleCardAction = (action: 'incorrect' | 'partial' | 'correct') => {
     console.log(`Marked as ${action}:`, currentWord);
@@ -148,7 +204,7 @@ export default function WordCardTab() {
               <div className="mb-6">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm text-muted-foreground">
-                    Card {currentCardIndex + 1} of {words.length}
+                    Card {currentCardIndex + 1} of {filteredWords.length}
                   </span>
                   <span className="text-sm text-muted-foreground">
                     {Math.round(progress)}%
@@ -168,7 +224,7 @@ export default function WordCardTab() {
                     <h1 className="text-4xl font-bold mb-4">
                       {cardType === 'turkish' ? currentWord.turkish : `${currentWord.article || ''} ${currentWord.german}`}
                     </h1>
-                    <p className="text-lg text-muted-foreground">Click to reveal answer</p>
+                    <p className="text-lg text-muted-foreground">Click or press Space to reveal answer</p>
                     <i className="fas fa-eye text-muted-foreground mt-4"></i>
                   </div>
                 ) : (
@@ -223,6 +279,12 @@ export default function WordCardTab() {
                 </Button>
               </div>
 
+              {/* Keyboard Shortcuts Info */}
+              <div className="text-xs text-muted-foreground mb-4 space-y-1">
+                <div>Use arrow keys: ← Previous | → Next | ↑ Correct | ↓ Don't Know</div>
+                <div>Press Space to flip card</div>
+              </div>
+
               {/* Navigation */}
               <div className="flex justify-between items-center">
                 <Button 
@@ -246,7 +308,7 @@ export default function WordCardTab() {
                 <Button 
                   variant="outline"
                   onClick={handleNextCard}
-                  disabled={currentCardIndex === words.length - 1}
+                  disabled={currentCardIndex === filteredWords.length - 1}
                 >
                   Next
                   <i className="fas fa-chevron-right ml-2"></i>
