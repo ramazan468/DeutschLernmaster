@@ -187,10 +187,10 @@ export default function WordListTab({ onOpenWordCard, onEditWord, getArticleColo
             <div>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                 <SelectTrigger>
-                  <SelectValue placeholder="All Categories" />
+                  <SelectValue placeholder="Alle Kategorien" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
+                  <SelectItem value="all">Alle Kategorien</SelectItem>
                   {categories.map((category) => (
                     <SelectItem key={category} value={category}>
                       {category}
@@ -205,9 +205,9 @@ export default function WordListTab({ onOpenWordCard, onEditWord, getArticleColo
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Words</SelectItem>
-                  <SelectItem value="true">Favorites Only</SelectItem>
-                  <SelectItem value="false">Not Favorites</SelectItem>
+                  <SelectItem value="all">Alle Wörter</SelectItem>
+                  <SelectItem value="true">Nur Favoriten</SelectItem>
+                  <SelectItem value="false">Nicht-Favoriten</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -217,8 +217,8 @@ export default function WordListTab({ onOpenWordCard, onEditWord, getArticleColo
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="alphabetical">Alphabetical</SelectItem>
-                  <SelectItem value="category">By Category</SelectItem>
+                  <SelectItem value="alphabetical">Alphabetisch</SelectItem>
+                  <SelectItem value="category">Nach Kategorie</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -250,22 +250,26 @@ export default function WordListTab({ onOpenWordCard, onEditWord, getArticleColo
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Article</TableHead>
-                    <TableHead>Word</TableHead>
+                    <TableHead>Artikel</TableHead>
+                    <TableHead>Wort</TableHead>
                     <TableHead>Plural</TableHead>
-                    <TableHead>Meaning</TableHead>
-                    <TableHead>Category</TableHead>
+                    <TableHead>Bedeutung</TableHead>
+                    <TableHead>Kategorie</TableHead>
                     <TableHead>WO/WOHIN/WOHER</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead>Aktionen</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {sortedWords.map((word) => (
-                    <TableRow key={word.id}>
-                      <TableCell className="font-medium">{word.article}</TableCell>
-                      <TableCell>{word.german}</TableCell>
-                      <TableCell>{word.plural}</TableCell>
-                      <TableCell>{word.turkish}</TableCell>
+                  {sortedWords.map((word) => {
+                    const hasPlural = Boolean(word.plural);
+                    const colorClass = getArticleColor ? getArticleColor(word.article, hasPlural && !word.article) : '';
+                    
+                    return (
+                      <TableRow key={word.id}>
+                        <TableCell className={`font-medium ${colorClass}`}>{word.article || (hasPlural ? 'die' : '-')}</TableCell>
+                        <TableCell className={`font-bold ${colorClass}`}>{word.german.charAt(0).toUpperCase() + word.german.slice(1)}</TableCell>
+                        <TableCell className={colorClass}>{word.plural}</TableCell>
+                        <TableCell>{word.turkish}</TableCell>
                       <TableCell>
                         <Badge variant="secondary">{word.category}</Badge>
                       </TableCell>
@@ -311,7 +315,8 @@ export default function WordListTab({ onOpenWordCard, onEditWord, getArticleColo
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
