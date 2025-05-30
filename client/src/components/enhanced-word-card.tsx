@@ -168,21 +168,21 @@ export default function EnhancedWordCard({ word, onClose, getArticleColor }: Enh
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center space-x-3 mb-3">
-                <div className={`px-3 py-1 rounded-full text-sm font-medium border-2 border-black ${colorClass}`}>
-                  {localWord.article || 'Artikel'}
-                </div>
-                {localWord.plural && (
-                  <div className="px-3 py-1 rounded-full text-sm font-medium border-2 border-black bg-gray-100">
-                    {localWord.plural}
-                  </div>
-                )}
                 <Badge variant={localWord.isFavorite ? "default" : "secondary"} className="flex items-center space-x-1 border border-black">
                   <Heart className={`h-3 w-3 ${localWord.isFavorite ? 'fill-current' : ''}`} />
                   <span>{localWord.isFavorite ? 'Favorit' : 'Normal'}</span>
                 </Badge>
               </div>
               <CardTitle className={`text-4xl font-bold mb-1 ${colorClass}`}>
-                {localWord.german.charAt(0).toUpperCase() + localWord.german.slice(1)}
+                {localWord.article ? `${localWord.article} ` : ''}{localWord.german.charAt(0).toUpperCase() + localWord.german.slice(1)}
+                {localWord.plural && (
+                  <span className="text-2xl text-gray-600 ml-2">
+                    , {localWord.plural}
+                    {localWord.pluralSuffix && (
+                      <span className="text-lg text-gray-500 ml-1">({localWord.pluralSuffix})</span>
+                    )}
+                  </span>
+                )}
               </CardTitle>
               <p className="text-xl text-gray-600 font-medium">{localWord.turkish}</p>
             </div>
@@ -199,7 +199,7 @@ export default function EnhancedWordCard({ word, onClose, getArticleColor }: Enh
         
         <CardContent className="p-8 space-y-8">
           {/* Main Word Information */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="space-y-6">
               <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-black">
                 <div className="flex items-center space-x-2 mb-3">
@@ -244,6 +244,21 @@ export default function EnhancedWordCard({ word, onClose, getArticleColor }: Enh
                 />
               </div>
 
+              <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-6 border-2 border-black">
+                <div className="flex items-center space-x-2 mb-3">
+                  <Plus className="h-4 w-4 text-amber-600" />
+                  <label className="text-sm font-semibold text-amber-800">Plural Ek</label>
+                </div>
+                <EditableField
+                  value={localWord.pluralSuffix}
+                  onSave={(value) => handleFieldUpdate('pluralSuffix', value)}
+                  placeholder="z.B. -en, -er, -s"
+                  className="bg-white/70 border-2 border-black"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-6">
               <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-6 border-2 border-black">
                 <div className="flex items-center space-x-2 mb-3">
                   <span className="text-lg font-bold">🇹🇷</span>
@@ -256,9 +271,7 @@ export default function EnhancedWordCard({ word, onClose, getArticleColor }: Enh
                   className="text-lg bg-white/70 border-2 border-black"
                 />
               </div>
-            </div>
 
-            <div className="space-y-6">
               <div className="bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl p-6 border-2 border-black">
                 <div className="flex items-center space-x-2 mb-3">
                   <span className="text-lg">🏷️</span>
@@ -302,7 +315,9 @@ export default function EnhancedWordCard({ word, onClose, getArticleColor }: Enh
                   </SelectContent>
                 </Select>
               </div>
+            </div>
 
+            <div className="space-y-6">
               <div className="bg-gradient-to-br from-red-50 to-rose-50 rounded-xl p-6 border-2 border-black">
                 <div className="flex items-center space-x-2 mb-3">
                   <span className="text-lg">📍</span>
