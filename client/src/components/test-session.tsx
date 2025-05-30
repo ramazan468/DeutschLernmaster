@@ -89,7 +89,7 @@ export default function TestSession({ mode, questionCount, testType, source, onC
 
     switch (mode) {
       case 'artikel':
-        question = `${word.german} kelimesinin artikeli nedir?`;
+        question = `"${word.german}" kelimesinin artikeli nedir?`;
         correctAnswer = word.article || "";
         if (type === 'multiple') {
           options = ['der', 'die', 'das'].filter(article => article !== correctAnswer);
@@ -99,7 +99,7 @@ export default function TestSession({ mode, questionCount, testType, source, onC
         break;
 
       case 'plural':
-        question = `"${word.german}" kelimesinin çoğulu nedir?`;
+        question = `"${word.article} ${word.german}" kelimesinin çoğulu nedir?`;
         correctAnswer = word.plural || "";
         if (type === 'multiple') {
           const otherPlurals = allWords
@@ -112,18 +112,18 @@ export default function TestSession({ mode, questionCount, testType, source, onC
 
       case 'tr-de':
         question = `"${word.turkish}" kelimesinin Almancası nedir?`;
-        correctAnswer = word.german;
+        correctAnswer = `${word.article} ${word.german}`;
         if (type === 'multiple') {
           const otherGerman = allWords
             .filter(w => w.id !== word.id)
-            .map(w => w.german)
+            .map(w => `${w.article} ${w.german}`)
             .slice(0, 3);
           options = [...otherGerman, correctAnswer].sort(() => Math.random() - 0.5);
         }
         break;
 
       case 'de-tr':
-        question = `"${word.german}" kelimesinin Türkçesi nedir?`;
+        question = `"${word.article} ${word.german}" kelimesinin Türkçesi nedir?`;
         correctAnswer = word.turkish;
         if (type === 'multiple') {
           const otherTurkish = allWords
@@ -135,7 +135,7 @@ export default function TestSession({ mode, questionCount, testType, source, onC
         break;
 
       case 'wo':
-        question = `"${word.german}" için WO? (Nerede?) cevabı nedir?`;
+        question = `"${word.article} ${word.german}" için WO? (Nerede?) cevabı nedir?`;
         correctAnswer = word.wo || "";
         if (type === 'multiple') {
           const otherWo = allWords
@@ -147,7 +147,7 @@ export default function TestSession({ mode, questionCount, testType, source, onC
         break;
 
       case 'wohin':
-        question = `"${word.german}" için WOHIN? (Nereye?) cevabı nedir?`;
+        question = `"${word.article} ${word.german}" için WOHIN? (Nereye?) cevabı nedir?`;
         correctAnswer = word.wohin || "";
         if (type === 'multiple') {
           const otherWohin = allWords
@@ -159,7 +159,7 @@ export default function TestSession({ mode, questionCount, testType, source, onC
         break;
 
       case 'woher':
-        question = `"${word.german}" için WOHER? (Nereden?) cevabı nedir?`;
+        question = `"${word.article} ${word.german}" için WOHER? (Nereden?) cevabı nedir?`;
         correctAnswer = word.woher || "";
         if (type === 'multiple') {
           const otherWoher = allWords
