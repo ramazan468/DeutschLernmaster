@@ -332,48 +332,54 @@ export default function EnhancedWordCard({ word, onClose, getArticleColor }: Enh
             </div>
 
             <div className="space-y-6">
-              <div className="bg-gradient-to-br from-red-50 to-rose-50 rounded-xl p-6 border-2 border-black h-32 flex flex-col">
-                <div className="flex items-center space-x-2 mb-3">
+              <div className="bg-gradient-to-br from-red-50 to-rose-50 rounded-xl p-4 border-2 border-black h-32 flex flex-col">
+                <div className="flex items-center space-x-2 mb-2">
                   <span className="text-lg">📍</span>
-                  <label className="text-sm font-semibold text-red-800">WO? (Wo ist es?)</label>
+                  <label className="text-xs font-semibold text-red-800">WO?</label>
                 </div>
-                <div className="flex-1 flex items-center">
-                  <EditableField
-                    value={localWord.wo}
-                    onSave={(value) => handleFieldUpdate('wo', value)}
-                    placeholder="z.B. in der Küche, im Garten"
-                    className="bg-white/70 border-2 border-black w-full"
-                  />
+                <div className="flex-1 flex items-center overflow-hidden">
+                  <div className="w-full">
+                    <EditableField
+                      value={localWord.wo}
+                      onSave={(value) => handleFieldUpdate('wo', value)}
+                      placeholder="in der Küche..."
+                      className="bg-white/70 border-2 border-black w-full text-sm"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-xl p-6 border-2 border-black h-32 flex flex-col">
-                <div className="flex items-center space-x-2 mb-3">
+              <div className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-xl p-4 border-2 border-black h-32 flex flex-col">
+                <div className="flex items-center space-x-2 mb-2">
                   <span className="text-lg">➡️</span>
-                  <label className="text-sm font-semibold text-teal-800">WOHIN? (Wohin geht es?)</label>
+                  <label className="text-xs font-semibold text-teal-800">WOHIN?</label>
                 </div>
-                <div className="flex-1 flex items-center">
-                  <EditableField
-                    value={localWord.wohin}
-                    onSave={(value) => handleFieldUpdate('wohin', value)}
-                    placeholder="z.B. in die Küche, an den Strand"
-                    className="bg-white/70 border-2 border-black w-full"
-                  />
+                <div className="flex-1 flex items-center overflow-hidden">
+                  <div className="w-full">
+                    <EditableField
+                      value={localWord.wohin}
+                      onSave={(value) => handleFieldUpdate('wohin', value)}
+                      placeholder="in die Küche..."
+                      className="bg-white/70 border-2 border-black w-full text-sm"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl p-6 border-2 border-black h-32 flex flex-col">
-                <div className="flex items-center space-x-2 mb-3">
+              <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl p-4 border-2 border-black h-32 flex flex-col">
+                <div className="flex items-center space-x-2 mb-2">
                   <span className="text-lg">⬅️</span>
-                  <label className="text-sm font-semibold text-violet-800">WOHER? (Woher kommt es?)</label>
+                  <label className="text-xs font-semibold text-violet-800">WOHER?</label>
                 </div>
-                <div className="flex-1 flex items-center">
-                  <EditableField
-                    value={localWord.woher}
-                    onSave={(value) => handleFieldUpdate('woher', value)}
-                    placeholder="z.B. aus der Küche, vom Strand"
-                    className="bg-white/70 border-2 border-black w-full"
-                  />
+                <div className="flex-1 flex items-center overflow-hidden">
+                  <div className="w-full">
+                    <EditableField
+                      value={localWord.woher}
+                      onSave={(value) => handleFieldUpdate('woher', value)}
+                      placeholder="aus der Küche..."
+                      className="bg-white/70 border-2 border-black w-full text-sm"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
