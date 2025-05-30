@@ -285,7 +285,7 @@ export default function TestSession({ mode, questionCount, testType, source, sel
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {questions.map((question, index) => {
               const userAnswer = userAnswers[index] || '';
               const isCorrect = showResult && userAnswer.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim();
@@ -315,38 +315,42 @@ export default function TestSession({ mode, questionCount, testType, source, sel
                     )}
                     
                     {question.type === 'multiple' ? (
-                      <RadioGroup 
-                        value={userAnswers[index] || ''} 
-                        onValueChange={(value) => !showResult && handleAnswerChange(index, value)}
-                        disabled={showResult}
-                      >
+                      <div className="space-y-2">
                         {question.options?.map((option, optionIndex) => {
-                          let optionStyle = "text-xs";
+                          const isSelected = userAnswer === option;
+                          const isCorrectOption = option === question.correctAnswer;
+                          const isWrongSelected = showResult && isSelected && !isCorrectOption;
+                          
+                          let buttonStyle = "w-full justify-start text-xs h-8 ";
                           if (showResult) {
-                            if (option === question.correctAnswer) {
-                              optionStyle = "text-xs text-green-700 font-bold";
-                            } else if (option === userAnswer && option !== question.correctAnswer) {
-                              optionStyle = "text-xs text-red-700 font-bold";
+                            if (isCorrectOption) {
+                              buttonStyle += "bg-green-500 text-white border-green-600 hover:bg-green-600";
+                            } else if (isWrongSelected) {
+                              buttonStyle += "bg-red-500 text-white border-red-600 hover:bg-red-600";
+                            } else {
+                              buttonStyle += "bg-gray-100 text-gray-600";
+                            }
+                          } else {
+                            if (isSelected) {
+                              buttonStyle += "bg-blue-500 text-white border-blue-600 hover:bg-blue-600";
+                            } else {
+                              buttonStyle += "bg-white border-gray-200 hover:bg-gray-50";
                             }
                           }
                           
                           return (
-                            <div key={optionIndex} className="flex items-center space-x-2">
-                              <RadioGroupItem 
-                                value={option} 
-                                id={`q${index}-option-${optionIndex}`}
-                                disabled={showResult}
-                              />
-                              <Label 
-                                htmlFor={`q${index}-option-${optionIndex}`} 
-                                className={optionStyle}
-                              >
-                                {option}
-                              </Label>
-                            </div>
+                            <Button
+                              key={optionIndex}
+                              variant="outline"
+                              className={buttonStyle}
+                              onClick={() => !showResult && handleAnswerChange(index, option)}
+                              disabled={showResult}
+                            >
+                              {option}
+                            </Button>
                           );
                         })}
-                      </RadioGroup>
+                      </div>
                     ) : (
                       <Input
                         value={userAnswers[index] || ''}
