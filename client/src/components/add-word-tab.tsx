@@ -90,18 +90,20 @@ export default function AddWordTab() {
 
     lines.forEach((line) => {
       const columns = line.split('\t');
-      if (columns.length >= 4) {
+      if (columns.length >= 6) {
         const word: InsertWord = {
-          article: columns[0]?.trim() || "",
-          german: columns[1]?.trim() || "",
-          plural: columns[2]?.trim() || "",
-          turkish: columns[3]?.trim() || "",
-          category: columns[4]?.trim() || "Other",
+          article: columns[0]?.trim() || "",           // 1-artikel
+          german: columns[1]?.trim() || "",            // 2-kelime
+          plural: columns[2]?.trim() || "",            // 3-çoğul
+          pluralSuffix: columns[3]?.trim() || "",      // 4-çoğul eki
+          turkish: columns[4]?.trim() || "",           // 5-anlam
+          category: columns[5]?.trim() || "Other",     // 6-kategori
+          // columns[6] = örnek cümle (şu an kullanılmıyor)
+          // columns[7] = örnek cümle çeviri (şu an kullanılmıyor)
           isFavorite: false,
-          pluralSuffix: "",
-          wo: columns[5]?.trim() || "",
-          wohin: columns[6]?.trim() || "",
-          woher: columns[7]?.trim() || "",
+          wo: "",
+          wohin: "",
+          woher: "",
         };
         
         if (word.german && word.turkish) {
