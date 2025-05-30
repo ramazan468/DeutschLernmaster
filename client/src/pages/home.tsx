@@ -141,7 +141,7 @@ export default function Home() {
       case 'favorites':
         return <FavoritesTab onOpenWordCard={handleOpenWordCard} />;
       case 'categories':
-        return <CategoriesTab />;
+        return <CategoriesTab onOpenWordCard={handleOpenWordCard} />;
       case 'wordcard':
         return <WordCardTab />;
       case 'addword':

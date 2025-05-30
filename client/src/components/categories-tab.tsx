@@ -1,9 +1,18 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import type { Word } from "@shared/schema";
 
-export default function CategoriesTab() {
+interface CategoriesTabProps {
+  onOpenWordCard?: (word: Word) => void;
+}
+
+export default function CategoriesTab({ onOpenWordCard }: CategoriesTabProps) {
+  const [openCategories, setOpenCategories] = useState<string[]>([]);
+  
   const { data: categories = [] } = useQuery<string[]>({
     queryKey: ['/api/categories'],
   });
@@ -11,6 +20,14 @@ export default function CategoriesTab() {
   const { data: allWords = [] } = useQuery<Word[]>({
     queryKey: ['/api/words'],
   });
+
+  const toggleCategory = (category: string) => {
+    setOpenCategories(prev => 
+      prev.includes(category) 
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
 
   const getCategoryData = (category: string) => {
     const categoryWords = allWords.filter(word => word.category === category);
@@ -29,28 +46,28 @@ export default function CategoriesTab() {
 
   const getCategoryIcon = (category: string) => {
     const iconMap: { [key: string]: string } = {
-      'Animals': 'paw',
-      'Food': 'utensils',
-      'Home': 'home',
-      'Colors': 'palette',
-      'Family': 'users',
-      'Travel': 'plane',
-      'Work': 'briefcase',
-      'School': 'graduation-cap',
+      'Tiere': 'paw',
+      'Essen': 'utensils',
+      'Haushalt': 'home',
+      'Farben': 'palette',
+      'Familie': 'users',
+      'Transport': 'plane',
+      'Arbeit': 'briefcase',
+      'Schule': 'graduation-cap',
     };
     return iconMap[category] || 'folder';
   };
 
   const getCategoryColor = (category: string) => {
     const colorMap: { [key: string]: string } = {
-      'Animals': 'text-green-600 bg-green-100',
-      'Food': 'text-orange-600 bg-orange-100',
-      'Home': 'text-blue-600 bg-blue-100',
-      'Colors': 'text-purple-600 bg-purple-100',
-      'Family': 'text-pink-600 bg-pink-100',
-      'Travel': 'text-indigo-600 bg-indigo-100',
-      'Work': 'text-gray-600 bg-gray-100',
-      'School': 'text-yellow-600 bg-yellow-100',
+      'Tiere': 'text-green-600 bg-green-100',
+      'Essen': 'text-orange-600 bg-orange-100',
+      'Haushalt': 'text-blue-600 bg-blue-100',
+      'Farben': 'text-purple-600 bg-purple-100',
+      'Familie': 'text-pink-600 bg-pink-100',
+      'Transport': 'text-indigo-600 bg-indigo-100',
+      'Arbeit': 'text-gray-600 bg-gray-100',
+      'Schule': 'text-yellow-600 bg-yellow-100',
     };
     return colorMap[category] || 'text-gray-600 bg-gray-100';
   };
@@ -63,61 +80,145 @@ export default function CategoriesTab() {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="space-y-4">
       {categories.map((category) => {
         const categoryData = getCategoryData(category);
+        const categoryWords = allWords.filter(word => word.category === category);
+        const isOpen = openCategories.includes(category);
         
         return (
-          <Card 
-            key={category} 
-            className="hover:shadow-md transition-shadow cursor-pointer"
-            onClick={() => {
-              // TODO: Navigate to category details or filter word list
-              console.log('Open category:', category);
-            }}
-          >
-            <CardContent className="p-6">
-              <div className="text-center">
-                <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${categoryData.color}`}>
-                  <i className={`fas fa-${categoryData.icon} text-2xl`}></i>
+          <Card key={category} className="overflow-hidden">
+            <CardContent className="p-0">
+              {/* Category Header */}
+              <div 
+                className="p-6 cursor-pointer hover:bg-gray-50 transition-colors border-b"
+                onClick={() => toggleCategory(category)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${categoryData.color}`}>
+                      <i className={`fas fa-${categoryData.icon} text-xl`}></i>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold">{categoryData.name}</h3>
+                      <p className="text-sm text-gray-600">{categoryData.wordCount} kelime</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <Badge 
+                      variant={categoryData.progress >= 70 ? "default" : "secondary"}
+                      className={categoryData.progress >= 70 ? "bg-green-500" : ""}
+                    >
+                      {categoryData.progress}% öğrenildi
+                    </Badge>
+                    <i className={`fas fa-chevron-${isOpen ? 'up' : 'down'} text-gray-400`}></i>
+                  </div>
                 </div>
-                <h3 className="text-lg font-semibold mb-2">{categoryData.name}</h3>
-                <p className="text-sm text-muted-foreground mb-3">{categoryData.description}</p>
-                <div className="flex justify-between items-center text-sm mb-3">
-                  <span className="text-muted-foreground">{categoryData.wordCount} words</span>
-                  <Badge 
-                    variant={categoryData.progress >= 70 ? "default" : "secondary"}
-                    className={categoryData.progress >= 70 ? "bg-green-500" : ""}
-                  >
-                    {categoryData.progress}% learned
-                  </Badge>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="mt-4 w-full bg-gray-200 rounded-full h-2">
                   <div 
                     className={`h-2 rounded-full transition-all duration-300 ${getProgressColor(categoryData.progress)}`}
                     style={{ width: `${categoryData.progress}%` }}
                   ></div>
                 </div>
               </div>
+
+              {/* Category Words List */}
+              <Collapsible open={isOpen}>
+                <CollapsibleContent>
+                  <div className="p-0">
+                    {/* Header */}
+                    <div className="grid grid-cols-7 gap-4 px-6 py-3 bg-gray-50 border-b font-medium text-sm text-gray-700">
+                      <div>Artikel</div>
+                      <div>Kelime</div>
+                      <div>Çoğul</div>
+                      <div>Ek</div>
+                      <div>Kategori</div>
+                      <div className="text-center">Favori</div>
+                      <div className="text-center">İşlemler</div>
+                    </div>
+                    
+                    {/* Words */}
+                    <div className="divide-y divide-gray-200">
+                      {categoryWords.map((word) => (
+                        <div key={word.id} className="p-4 hover:bg-gray-50 transition-colors">
+                          <div className="grid grid-cols-7 gap-4 items-center">
+                            {/* Artikel */}
+                            <div>
+                              <span className={`text-sm font-medium px-2 py-1 rounded min-w-[50px] text-center inline-block ${
+                                word.article === 'der' ? 'bg-blue-100 text-blue-800' :
+                                word.article === 'die' ? 'bg-red-100 text-red-800' :
+                                word.article === 'das' ? 'bg-green-100 text-green-800' :
+                                'bg-yellow-100 text-yellow-800'
+                              }`}>
+                                {word.article || '-'}
+                              </span>
+                            </div>
+                            
+                            {/* Kelime */}
+                            <div>
+                              <h3 className="font-semibold text-lg">
+                                {word.german.charAt(0).toUpperCase() + word.german.slice(1)}
+                              </h3>
+                              <p className="text-sm text-gray-600">{word.turkish}</p>
+                            </div>
+                            
+                            {/* Çoğul */}
+                            <div>
+                              <p className="text-sm text-gray-700">{word.plural || '-'}</p>
+                            </div>
+                            
+                            {/* Ek */}
+                            <div>
+                              <p className="text-sm text-gray-700">{word.pluralSuffix || '-'}</p>
+                            </div>
+                            
+                            {/* Kategori */}
+                            <div>
+                              <Badge variant="secondary">
+                                {word.category}
+                              </Badge>
+                            </div>
+                            
+                            {/* Favori */}
+                            <div className="text-center">
+                              <i className={`fas fa-heart ${word.isFavorite ? 'text-red-500' : 'text-gray-300'}`}></i>
+                            </div>
+                            
+                            {/* İşlemler */}
+                            <div className="flex items-center justify-center space-x-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => onOpenWordCard?.(word)}
+                                className="text-blue-600 hover:text-blue-700"
+                              >
+                                <i className="fas fa-eye"></i>
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             </CardContent>
           </Card>
         );
       })}
       
       {categories.length === 0 && (
-        <div className="col-span-full">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center py-8">
-                <i className="fas fa-tags text-4xl text-muted-foreground mb-4"></i>
-                <h3 className="text-lg font-medium mb-2">No categories found</h3>
-                <p className="text-muted-foreground">
-                  Add some words to create categories automatically.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center py-8">
+              <i className="fas fa-tags text-4xl text-muted-foreground mb-4"></i>
+              <h3 className="text-lg font-medium mb-2">Kategori bulunamadı</h3>
+              <p className="text-muted-foreground">
+                Kategoriler otomatik olarak oluşturulması için kelime ekleyin.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

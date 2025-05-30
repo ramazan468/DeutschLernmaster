@@ -290,66 +290,83 @@ export default function FavoritesTab({ onOpenWordCard }: FavoritesTabProps) {
         ) : (
           <Card>
             <CardContent className="p-0">
+              {/* Header */}
+              <div className="grid grid-cols-7 gap-4 px-4 py-3 bg-gray-50 border-b font-medium text-sm text-gray-700">
+                <div>Artikel</div>
+                <div>Kelime</div>
+                <div>Çoğul</div>
+                <div>Ek</div>
+                <div>Kategori</div>
+                <div className="text-center">Favori</div>
+                <div className="text-center">İşlemler</div>
+              </div>
+              
+              {/* Rows */}
               <div className="divide-y divide-gray-200">
                 {filteredWords.map((word, index) => (
                   <div key={word.id} className="p-4 hover:bg-gray-50 transition-colors">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-                        <div className="flex items-center space-x-3">
-                          <span className="text-sm font-medium text-gray-500 w-8">
-                            {index + 1}
-                          </span>
-                          <div>
-                            <div className="flex items-center space-x-2">
-                              <span className={`text-sm font-medium px-2 py-1 rounded ${
-                                word.article === 'der' ? 'bg-blue-100 text-blue-800' :
-                                word.article === 'die' ? 'bg-red-100 text-red-800' :
-                                word.article === 'das' ? 'bg-green-100 text-green-800' :
-                                'bg-yellow-100 text-yellow-800'
-                              }`}>
-                                {word.article || '-'}
-                              </span>
-                              <h3 className="font-semibold text-lg">
-                                {word.german.charAt(0).toUpperCase() + word.german.slice(1)}
-                              </h3>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <p className="text-gray-700 font-medium">{word.turkish}</p>
-                        </div>
-                        
-                        <div>
-                          <p className="text-sm text-gray-600">
-                            <span className="font-medium">Plural:</span> {word.plural || '-'}
-                          </p>
-                          <Badge variant="secondary" className="mt-1">
-                            {word.category}
-                          </Badge>
-                        </div>
-                        
-                        <div className="flex items-center justify-end space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => onOpenWordCard?.(word)}
-                            className="text-blue-600 hover:text-blue-700"
-                          >
-                            <i className="fas fa-eye mr-1"></i>
-                            Kartı Gör
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleRemoveFromFavorites(word.id)}
-                            disabled={removeFavoriteMutation.isPending}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <i className="fas fa-heart mr-1"></i>
-                            Kaldır
-                          </Button>
-                        </div>
+                    <div className="grid grid-cols-7 gap-4 items-center">
+                      {/* Artikel */}
+                      <div>
+                        <span className={`text-sm font-medium px-2 py-1 rounded min-w-[50px] text-center inline-block ${
+                          word.article === 'der' ? 'bg-blue-100 text-blue-800' :
+                          word.article === 'die' ? 'bg-red-100 text-red-800' :
+                          word.article === 'das' ? 'bg-green-100 text-green-800' :
+                          'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {word.article || '-'}
+                        </span>
+                      </div>
+                      
+                      {/* Kelime */}
+                      <div>
+                        <h3 className="font-semibold text-lg">
+                          {word.german.charAt(0).toUpperCase() + word.german.slice(1)}
+                        </h3>
+                        <p className="text-sm text-gray-600">{word.turkish}</p>
+                      </div>
+                      
+                      {/* Çoğul */}
+                      <div>
+                        <p className="text-sm text-gray-700">{word.plural || '-'}</p>
+                      </div>
+                      
+                      {/* Ek */}
+                      <div>
+                        <p className="text-sm text-gray-700">{word.pluralSuffix || '-'}</p>
+                      </div>
+                      
+                      {/* Kategori */}
+                      <div>
+                        <Badge variant="secondary">
+                          {word.category}
+                        </Badge>
+                      </div>
+                      
+                      {/* Favori */}
+                      <div className="text-center">
+                        <i className="fas fa-heart text-red-500"></i>
+                      </div>
+                      
+                      {/* İşlemler */}
+                      <div className="flex items-center justify-center space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onOpenWordCard?.(word)}
+                          className="text-blue-600 hover:text-blue-700"
+                        >
+                          <i className="fas fa-eye"></i>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveFromFavorites(word.id)}
+                          disabled={removeFavoriteMutation.isPending}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <i className="fas fa-trash"></i>
+                        </Button>
                       </div>
                     </div>
                   </div>
