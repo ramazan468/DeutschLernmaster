@@ -32,6 +32,14 @@ export default function WordListTab({ onOpenWordCard, onEditWord, getArticleColo
     queryKey: ['/api/words'],
   });
 
+  const { data: categories = [] } = useQuery<string[]>({
+    queryKey: ['/api/categories'],
+  });
+
+  const { data: favoriteLists = [] } = useQuery<FavoriteList[]>({
+    queryKey: ['/api/favorite-lists'],
+  });
+
   // Client-side filtering
   const filteredWords = allWords.filter(word => {
     // Search filter
@@ -46,21 +54,19 @@ export default function WordListTab({ onOpenWordCard, onEditWord, getArticleColo
     }
     
     // Favorite filter
-    if (favoriteFilter === 'favorites' && !word.isFavorite) {
+    if (favoriteFilter === 'general-favorites' && !word.isFavorite) {
       return false;
     } else if (favoriteFilter === 'not-favorites' && word.isFavorite) {
       return false;
+    } else if (favoriteFilter !== 'all' && favoriteFilter !== 'general-favorites' && favoriteFilter !== 'not-favorites') {
+      // Specific favorite list filter
+      const list = favoriteLists.find(list => list.id.toString() === favoriteFilter);
+      if (!list || !list.wordIds.includes(word.id.toString())) {
+        return false;
+      }
     }
     
     return true;
-  });
-
-  const { data: categories = [] } = useQuery<string[]>({
-    queryKey: ['/api/categories'],
-  });
-
-  const { data: favoriteLists = [] } = useQuery<FavoriteList[]>({
-    queryKey: ['/api/favorite-lists'],
   });
 
   const toggleFavoriteMutation = useMutation({
@@ -221,12 +227,17 @@ export default function WordListTab({ onOpenWordCard, onEditWord, getArticleColo
             <div>
               <Select value={favoriteFilter} onValueChange={setFavoriteFilter}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Favori Filter" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Alle Wörter</SelectItem>
-                  <SelectItem value="true">Nur Favoriten</SelectItem>
-                  <SelectItem value="false">Nicht-Favoriten</SelectItem>
+                  <SelectItem value="general-favorites">Genel Favoriler</SelectItem>
+                  <SelectItem value="not-favorites">Nicht-Favoriten</SelectItem>
+                  {favoriteLists.map((list) => (
+                    <SelectItem key={list.id} value={list.id.toString()}>
+                      {list.name} ({list.wordIds.length} kelime)
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
