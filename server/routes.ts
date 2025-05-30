@@ -129,6 +129,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/categories", async (req, res) => {
+    try {
+      const { name } = req.body;
+      if (!name || typeof name !== 'string') {
+        return res.status(400).json({ message: "Category name is required" });
+      }
+      
+      // Check if category already exists
+      const categories = await storage.getCategories();
+      if (categories.includes(name)) {
+        return res.status(409).json({ message: "Category already exists" });
+      }
+      
+      // For now, we'll just return success since categories are derived from words
+      res.status(201).json({ name, message: "Category will be available when words are added to it" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create category" });
+    }
+  });
+
+  app.patch("/api/categories/:name", async (req, res) => {
+    try {
+      const oldName = decodeURIComponent(req.params.name);
+      const { name: newName } = req.body;
+      
+      if (!newName || typeof newName !== 'string') {
+        return res.status(400).json({ message: "New category name is required" });
+      }
+      
+      // Update all words with this category
+      const words = await storage.getWords();
+      const wordsToUpdate = words.filter(word => word.category === oldName);
+      
+      for (const word of wordsToUpdate) {
+        await storage.updateWord(word.id, { category: newName });
+      }
+      
+      res.json({ message: `Updated ${wordsToUpdate.length} words from category "${oldName}" to "${newName}"` });
+    } catch (error) {
+      console.error('Category update error:', error);
+      res.status(500).json({ message: "Failed to update category" });
+    }
+  });
+
+  app.delete("/api/categories/:name", async (req, res) => {
+    try {
+      const categoryName = decodeURIComponent(req.params.name);
+      
+      // Move all words in this category to "Genel" category
+      const words = await storage.getWords();
+      const wordsToUpdate = words.filter(word => word.category === categoryName);
+      
+      for (const word of wordsToUpdate) {
+        await storage.updateWord(word.id, { category: "Genel" });
+      }
+      
+      res.json({ message: `Moved ${wordsToUpdate.length} words from "${categoryName}" to "Genel" category` });
+    } catch (error) {
+      console.error('Category delete error:', error);
+      res.status(500).json({ message: "Failed to delete category" });
+    }
+  });
+
   app.get("/api/categories/:category/words", async (req, res) => {
     try {
       const category = req.params.category;
