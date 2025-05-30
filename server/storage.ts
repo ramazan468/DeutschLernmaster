@@ -1,4 +1,6 @@
 import { words, favoriteLists, testResults, type Word, type InsertWord, type FavoriteList, type InsertFavoriteList, type TestResult, type InsertTestResult } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   // Word operations
@@ -27,191 +29,115 @@ export interface IStorage {
   getFavoriteWords(): Promise<Word[]>;
 }
 
-export class MemStorage implements IStorage {
-  private words: Map<number, Word>;
-  private favoriteLists: Map<number, FavoriteList>;
-  private testResults: Map<number, TestResult>;
-  private currentWordId: number;
-  private currentFavoriteListId: number;
-  private currentTestResultId: number;
-
-  constructor() {
-    this.words = new Map();
-    this.favoriteLists = new Map();
-    this.testResults = new Map();
-    this.currentWordId = 1;
-    this.currentFavoriteListId = 1;
-    this.currentTestResultId = 1;
-    
-    // Initialize with some sample data
-    this.initializeSampleData();
-  }
-
-  private initializeSampleData() {
-    const sampleWords: InsertWord[] = [
-      {
-        article: "der",
-        german: "Hund",
-        plural: "Hunde",
-        pluralSuffix: "-e",
-        turkish: "köpek",
-        category: "Animals",
-        isFavorite: true,
-        wo: "zu Hause",
-        wohin: "nach Hause",
-        woher: "von zu Hause"
-      },
-      {
-        article: "die",
-        german: "Katze",
-        plural: "Katzen",
-        pluralSuffix: "-n",
-        turkish: "kedi",
-        category: "Animals",
-        isFavorite: true,
-        wo: "auf dem Sofa",
-        wohin: "auf das Sofa",
-        woher: "vom Sofa"
-      },
-      {
-        article: "das",
-        german: "Haus",
-        plural: "Häuser",
-        pluralSuffix: "-er",
-        turkish: "ev",
-        category: "Home",
-        isFavorite: false,
-        wo: "in der Stadt",
-        wohin: "in die Stadt",
-        woher: "aus der Stadt"
-      },
-      {
-        article: "das",
-        german: "Brot",
-        plural: "Brote",
-        pluralSuffix: "-e",
-        turkish: "ekmek",
-        category: "Food",
-        isFavorite: true,
-        wo: "auf dem Tisch",
-        wohin: "auf den Tisch",
-        woher: "vom Tisch"
-      },
-      {
-        article: "die",
-        german: "Farbe",
-        plural: "Farben",
-        pluralSuffix: "-n",
-        turkish: "renk",
-        category: "Colors",
-        isFavorite: false,
-        wo: "im Bild",
-        wohin: "ins Bild",
-        woher: "aus dem Bild"
-      }
-    ];
-
-    sampleWords.forEach(word => {
-      const id = this.currentWordId++;
-      this.words.set(id, { ...word, id });
-    });
-  }
-
+export class DatabaseStorage implements IStorage {
   async getWords(): Promise<Word[]> {
-    return Array.from(this.words.values());
+    const allWords = await db.select().from(words);
+    return allWords;
   }
 
   async getWord(id: number): Promise<Word | undefined> {
-    return this.words.get(id);
+    const [word] = await db.select().from(words).where(eq(words.id, id));
+    return word || undefined;
   }
 
   async createWord(insertWord: InsertWord): Promise<Word> {
-    const id = this.currentWordId++;
-    const word: Word = { ...insertWord, id };
-    this.words.set(id, word);
+    const [word] = await db
+      .insert(words)
+      .values(insertWord)
+      .returning();
     return word;
   }
 
   async updateWord(id: number, updateData: Partial<InsertWord>): Promise<Word | undefined> {
-    const existingWord = this.words.get(id);
-    if (!existingWord) return undefined;
-    
-    const updatedWord = { ...existingWord, ...updateData };
-    this.words.set(id, updatedWord);
-    return updatedWord;
+    const [word] = await db
+      .update(words)
+      .set(updateData)
+      .where(eq(words.id, id))
+      .returning();
+    return word || undefined;
   }
 
   async deleteWord(id: number): Promise<boolean> {
-    return this.words.delete(id);
+    const result = await db.delete(words).where(eq(words.id, id));
+    return result.rowCount > 0;
   }
 
   async getWordsByCategory(category: string): Promise<Word[]> {
-    return Array.from(this.words.values()).filter(word => word.category === category);
+    const categoryWords = await db.select().from(words).where(eq(words.category, category));
+    return categoryWords;
   }
 
   async getWordsByIds(ids: number[]): Promise<Word[]> {
-    return ids.map(id => this.words.get(id)).filter(Boolean) as Word[];
+    if (ids.length === 0) return [];
+    const selectedWords = await db.select().from(words).where(words.id.in ? words.id.in(ids) : eq(words.id, ids[0]));
+    return selectedWords;
   }
 
   async searchWords(query: string): Promise<Word[]> {
-    const lowercaseQuery = query.toLowerCase();
-    return Array.from(this.words.values()).filter(word =>
-      word.german.toLowerCase().includes(lowercaseQuery) ||
-      word.turkish.toLowerCase().includes(lowercaseQuery) ||
-      word.category.toLowerCase().includes(lowercaseQuery)
+    // For PostgreSQL, we can use ILIKE for case-insensitive search
+    const searchPattern = `%${query}%`;
+    const searchResults = await db.select().from(words).where(
+      words.german.ilike ? words.german.ilike(searchPattern) : 
+      words.turkish.ilike ? words.turkish.ilike(searchPattern) :
+      words.category.ilike ? words.category.ilike(searchPattern) : undefined
     );
+    return searchResults;
   }
 
   async getFavoriteLists(): Promise<FavoriteList[]> {
-    return Array.from(this.favoriteLists.values());
+    const lists = await db.select().from(favoriteLists);
+    return lists;
   }
 
   async getFavoriteList(id: number): Promise<FavoriteList | undefined> {
-    return this.favoriteLists.get(id);
+    const [list] = await db.select().from(favoriteLists).where(eq(favoriteLists.id, id));
+    return list || undefined;
   }
 
   async createFavoriteList(insertList: InsertFavoriteList): Promise<FavoriteList> {
-    const id = this.currentFavoriteListId++;
-    const list: FavoriteList = { ...insertList, id };
-    this.favoriteLists.set(id, list);
+    const [list] = await db
+      .insert(favoriteLists)
+      .values(insertList)
+      .returning();
     return list;
   }
 
   async updateFavoriteList(id: number, updateData: Partial<InsertFavoriteList>): Promise<FavoriteList | undefined> {
-    const existingList = this.favoriteLists.get(id);
-    if (!existingList) return undefined;
-    
-    const updatedList = { ...existingList, ...updateData };
-    this.favoriteLists.set(id, updatedList);
-    return updatedList;
+    const [list] = await db
+      .update(favoriteLists)
+      .set(updateData)
+      .where(eq(favoriteLists.id, id))
+      .returning();
+    return list || undefined;
   }
 
   async deleteFavoriteList(id: number): Promise<boolean> {
-    return this.favoriteLists.delete(id);
+    const result = await db.delete(favoriteLists).where(eq(favoriteLists.id, id));
+    return result.rowCount > 0;
   }
 
   async getTestResults(): Promise<TestResult[]> {
-    return Array.from(this.testResults.values());
+    const results = await db.select().from(testResults);
+    return results;
   }
 
   async createTestResult(insertResult: InsertTestResult): Promise<TestResult> {
-    const id = this.currentTestResultId++;
-    const result: TestResult = { ...insertResult, id };
-    this.testResults.set(id, result);
+    const [result] = await db
+      .insert(testResults)
+      .values(insertResult)
+      .returning();
     return result;
   }
 
   async getCategories(): Promise<string[]> {
-    const categories = new Set<string>();
-    for (const word of this.words.values()) {
-      categories.add(word.category);
-    }
-    return Array.from(categories);
+    const results = await db.selectDistinct({ category: words.category }).from(words);
+    return results.map(r => r.category);
   }
 
   async getFavoriteWords(): Promise<Word[]> {
-    return Array.from(this.words.values()).filter(word => word.isFavorite);
+    const favoriteWords = await db.select().from(words).where(eq(words.isFavorite, true));
+    return favoriteWords;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
