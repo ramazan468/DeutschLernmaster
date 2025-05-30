@@ -287,8 +287,8 @@ export default function CategoriesTab({ onOpenWordCard }: CategoriesTabProps) {
                       </div>
                     </div>
                   </div>
-                  ))
-                )}
+                ))
+              )}
               </div>
             </CardContent>
           </Card>
