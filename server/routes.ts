@@ -142,9 +142,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(409).json({ message: "Category already exists" });
       }
       
-      // For now, we'll just return success since categories are derived from words
-      res.status(201).json({ name, message: "Category will be available when words are added to it" });
+      // Create the category
+      const category = await storage.createCategory({ name });
+      res.status(201).json(category);
     } catch (error) {
+      console.error('Category creation error:', error);
       res.status(500).json({ message: "Failed to create category" });
     }
   });
@@ -158,15 +160,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "New category name is required" });
       }
       
-      // Update all words with this category
-      const words = await storage.getWords();
-      const wordsToUpdate = words.filter(word => word.category === oldName);
+      // Update category
+      await storage.updateCategory(oldName, newName);
       
-      for (const word of wordsToUpdate) {
-        await storage.updateWord(word.id, { category: newName });
-      }
-      
-      res.json({ message: `Updated ${wordsToUpdate.length} words from category "${oldName}" to "${newName}"` });
+      res.json({ message: `Category updated from "${oldName}" to "${newName}"` });
     } catch (error) {
       console.error('Category update error:', error);
       res.status(500).json({ message: "Failed to update category" });
@@ -177,15 +174,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const categoryName = decodeURIComponent(req.params.name);
       
-      // Move all words in this category to "Genel" category
-      const words = await storage.getWords();
-      const wordsToUpdate = words.filter(word => word.category === categoryName);
+      // Delete category and move words to "Genel"
+      await storage.deleteCategory(categoryName);
       
-      for (const word of wordsToUpdate) {
-        await storage.updateWord(word.id, { category: "Genel" });
-      }
-      
-      res.json({ message: `Moved ${wordsToUpdate.length} words from "${categoryName}" to "Genel" category` });
+      res.json({ message: `Category "${categoryName}" deleted and words moved to "Genel"` });
     } catch (error) {
       console.error('Category delete error:', error);
       res.status(500).json({ message: "Failed to delete category" });

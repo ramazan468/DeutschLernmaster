@@ -24,8 +24,13 @@ export interface IStorage {
   getTestResults(): Promise<TestResult[]>;
   createTestResult(result: InsertTestResult): Promise<TestResult>;
   
-  // Utility operations
+  // Category operations
   getCategories(): Promise<string[]>;
+  createCategory(category: InsertCategory): Promise<Category>;
+  updateCategory(oldName: string, newName: string): Promise<void>;
+  deleteCategory(name: string): Promise<void>;
+  
+  // Utility operations
   getFavoriteWords(): Promise<Word[]>;
 }
 
@@ -141,8 +146,51 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getCategories(): Promise<string[]> {
-    const results = await db.selectDistinct({ category: words.category }).from(words);
-    return results.map(r => r.category);
+    // Get categories from both words and categories table
+    const wordCategories = await db.selectDistinct({ category: words.category }).from(words);
+    const storedCategories = await db.select({ name: categories.name }).from(categories);
+    
+    const wordCategoryNames = wordCategories.map(r => r.category);
+    const storedCategoryNames = storedCategories.map(r => r.name);
+    
+    // Combine and deduplicate
+    const allCategories = [...new Set([...wordCategoryNames, ...storedCategoryNames])];
+    return allCategories.sort();
+  }
+
+  async createCategory(insertCategory: InsertCategory): Promise<Category> {
+    const [category] = await db
+      .insert(categories)
+      .values(insertCategory)
+      .returning();
+    return category;
+  }
+
+  async updateCategory(oldName: string, newName: string): Promise<void> {
+    // Update words with this category
+    await db
+      .update(words)
+      .set({ category: newName })
+      .where(eq(words.category, oldName));
+    
+    // Update category in categories table if it exists
+    await db
+      .update(categories)
+      .set({ name: newName })
+      .where(eq(categories.name, oldName));
+  }
+
+  async deleteCategory(name: string): Promise<void> {
+    // Move all words to "Genel" category
+    await db
+      .update(words)
+      .set({ category: "Genel" })
+      .where(eq(words.category, name));
+    
+    // Delete from categories table
+    await db
+      .delete(categories)
+      .where(eq(categories.name, name));
   }
 
   async getFavoriteWords(): Promise<Word[]> {

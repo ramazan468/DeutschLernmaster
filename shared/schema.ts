@@ -58,6 +58,9 @@ export type FavoriteList = typeof favoriteLists.$inferSelect;
 export type InsertTestResult = z.infer<typeof insertTestResultSchema>;
 export type TestResult = typeof testResults.$inferSelect;
 
+export type InsertCategory = z.infer<typeof insertCategorySchema>;
+export type Category = typeof categories.$inferSelect;
+
 export type TestMode = 'artikel' | 'plural' | 'tr-de' | 'de-tr' | 'sentence' | 'wo' | 'wohin' | 'woher';
 export type TestType = 'multiple' | 'fill' | 'mixed';
 export type TestSource = 'wordlist' | 'category' | 'favorites';
