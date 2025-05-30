@@ -27,6 +27,8 @@ export default function FavoritesTab({ onOpenWordCard, onEditWord }: FavoritesTa
   const [newCategoryName, setNewCategoryName] = useState("");
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
   const [editCategoryName, setEditCategoryName] = useState("");
+  const [editingListId, setEditingListId] = useState<number | null>(null);
+  const [editListName, setEditListName] = useState("");
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -87,6 +89,47 @@ export default function FavoritesTab({ onOpenWordCard, onEditWord }: FavoritesTa
       toast({
         title: "Error",
         description: "Failed to remove from favorites",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateListMutation = useMutation({
+    mutationFn: async ({ id, name }: { id: number; name: string }) => {
+      return apiRequest('PATCH', `/api/favorite-lists/${id}`, { name });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/favorite-lists'] });
+      toast({
+        title: "Başarılı",
+        description: "Liste adı güncellendi",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Hata",
+        description: "Liste adı güncellenemedi",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteListMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return apiRequest('DELETE', `/api/favorite-lists/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/favorite-lists'] });
+      setSelectedListId(null); // Reset to "All Favorites" after deletion
+      toast({
+        title: "Başarılı",
+        description: "Liste silindi",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Hata",
+        description: "Liste silinemedi",
         variant: "destructive",
       });
     },
@@ -204,6 +247,30 @@ export default function FavoritesTab({ onOpenWordCard, onEditWord }: FavoritesTa
     }
   };
 
+  const handleUpdateList = async (id: number) => {
+    if (!editListName.trim()) return;
+    
+    try {
+      await updateListMutation.mutateAsync({ id, name: editListName });
+      setEditingListId(null);
+      setEditListName("");
+    } catch (error) {
+      // Error handled by mutation
+    }
+  };
+
+  const handleDeleteList = async (id: number, name: string) => {
+    if (!confirm(`"${name}" listesini silmek istediğinizden emin misiniz?`)) {
+      return;
+    }
+    
+    try {
+      await deleteListMutation.mutateAsync(id);
+    } catch (error) {
+      // Error handled by mutation
+    }
+  };
+
   const getDisplayedWords = () => {
     if (selectedListId === null) {
       // Show all favorites
@@ -296,20 +363,86 @@ export default function FavoritesTab({ onOpenWordCard, onEditWord }: FavoritesTa
               {favoriteLists.slice(0, 5).map((list) => (
                 <div 
                   key={list.id} 
-                  className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                  className={`p-3 rounded-lg transition-colors ${
                     selectedListId === list.id 
                       ? 'bg-primary text-primary-foreground' 
                       : 'bg-muted hover:bg-muted/80'
                   }`}
-                  onClick={() => setSelectedListId(list.id)}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center">
-                      <i className="fas fa-bookmark mr-2"></i>
-                      {list.name}
-                    </span>
-                    <span className="text-sm text-muted-foreground">{list.wordIds.length}</span>
-                  </div>
+                  {editingListId === list.id ? (
+                    <div className="flex items-center gap-2">
+                      <Input
+                        value={editListName}
+                        onChange={(e) => setEditListName(e.target.value)}
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter') {
+                            handleUpdateList(list.id);
+                          } else if (e.key === 'Escape') {
+                            setEditingListId(null);
+                            setEditListName("");
+                          }
+                        }}
+                        className="flex-1 h-8"
+                        autoFocus
+                      />
+                      <Button 
+                        size="sm" 
+                        onClick={() => handleUpdateList(list.id)}
+                        disabled={updateListMutation.isPending}
+                        className="h-8 w-8 p-0"
+                      >
+                        ✓
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        onClick={() => {
+                          setEditingListId(null);
+                          setEditListName("");
+                        }}
+                        className="h-8 w-8 p-0"
+                      >
+                        ✕
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <span 
+                        className="flex items-center cursor-pointer flex-1"
+                        onClick={() => setSelectedListId(list.id)}
+                      >
+                        <i className="fas fa-bookmark mr-2"></i>
+                        {list.name}
+                      </span>
+                      <div className="flex items-center gap-1">
+                        <span className="text-sm text-muted-foreground mr-2">{list.wordIds.length}</span>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingListId(list.id);
+                            setEditListName(list.name);
+                          }}
+                          className="h-6 w-6 p-0 opacity-70 hover:opacity-100"
+                        >
+                          <Edit className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteList(list.id, list.name);
+                          }}
+                          disabled={deleteListMutation.isPending}
+                          className="h-6 w-6 p-0 opacity-70 hover:opacity-100"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
               
