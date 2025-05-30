@@ -166,31 +166,33 @@ export default function EnhancedWordCard({ word, onClose, getArticleColor }: Enh
       <Card className="w-full max-w-5xl max-h-[95vh] overflow-y-auto shadow-2xl border-2 border-black bg-white/95 backdrop-blur">
         <CardHeader className="relative bg-gradient-to-r from-gray-50 to-gray-100 border-b border-black">
           <div className="flex items-start justify-between">
-            <div className="flex-1">
+            <div className="flex-1 min-w-0 pr-4">
               <div className="flex items-center space-x-3 mb-3">
                 <Badge variant={localWord.isFavorite ? "default" : "secondary"} className="flex items-center space-x-1 border border-black">
                   <Heart className={`h-3 w-3 ${localWord.isFavorite ? 'fill-current' : ''}`} />
                   <span>{localWord.isFavorite ? 'Favorit' : 'Normal'}</span>
                 </Badge>
               </div>
-              <CardTitle className={`text-4xl font-bold mb-1 ${colorClass}`}>
-                {localWord.article ? `${localWord.article} ` : ''}{localWord.german.charAt(0).toUpperCase() + localWord.german.slice(1)}
-                {localWord.plural && (
-                  <span className="text-2xl text-gray-600 ml-2">
-                    , {localWord.plural}
-                    {localWord.pluralSuffix && (
-                      <span className="text-lg text-gray-500 ml-1">({localWord.pluralSuffix})</span>
-                    )}
-                  </span>
-                )}
-              </CardTitle>
-              <p className="text-xl text-gray-600 font-medium">{localWord.turkish}</p>
+              <div className="overflow-hidden">
+                <CardTitle className={`text-2xl font-bold mb-1 ${colorClass} break-words`}>
+                  {localWord.article ? `${localWord.article} ` : ''}{localWord.german.charAt(0).toUpperCase() + localWord.german.slice(1)}
+                  {localWord.plural && (
+                    <span className="text-lg text-gray-600 ml-2">
+                      , {localWord.plural}
+                      {localWord.pluralSuffix && (
+                        <span className="text-sm text-gray-500 ml-1">({localWord.pluralSuffix})</span>
+                      )}
+                    </span>
+                  )}
+                </CardTitle>
+                <p className="text-lg text-gray-600 font-medium break-words">{localWord.turkish}</p>
+              </div>
             </div>
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={onClose}
-              className="hover:bg-white/80 rounded-full h-10 w-10 p-0 border border-black"
+              className="hover:bg-white/80 rounded-full h-10 w-10 p-0 border border-black flex-shrink-0"
             >
               <X className="h-5 w-5" />
             </Button>
