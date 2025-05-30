@@ -198,6 +198,36 @@ export default function CategoriesTab({ onOpenWordCard }: CategoriesTabProps) {
                   </div>
                 );
               })}
+
+              {/* Remaining categories in dropdown */}
+              {remainingCategories.length > 0 && (
+                <Card className="bg-background">
+                  <CardContent className="p-3">
+                    <Select onValueChange={(value) => setSelectedCategory(value)}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder={`Diğer kategoriler (${remainingCategories.length})`} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <ScrollArea className="h-48">
+                          {remainingCategories.map((category) => {
+                            const data = getCategoryData(category);
+                            return (
+                              <SelectItem key={category} value={category}>
+                                <div className="flex items-center justify-between w-full">
+                                  <span>{data.name}</span>
+                                  <span className="text-xs text-muted-foreground ml-2">
+                                    {data.wordCount} kelime
+                                  </span>
+                                </div>
+                              </SelectItem>
+                            );
+                          })}
+                        </ScrollArea>
+                      </SelectContent>
+                    </Select>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -207,7 +237,25 @@ export default function CategoriesTab({ onOpenWordCard }: CategoriesTabProps) {
       <div className="lg:col-span-3">
         {selectedCategory ? (
           <Card>
-            <CardContent className="p-0">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>{selectedCategory}</span>
+                <Badge variant="secondary">
+                  {filteredWords.length} kelime
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {/* Word search */}
+              <div className="mb-4">
+                <Input
+                  placeholder="Kelime ara..."
+                  value={wordSearchTerm}
+                  onChange={(e) => setWordSearchTerm(e.target.value)}
+                  className="w-full max-w-md"
+                />
+              </div>
+              
               {/* Header */}
               <div className="grid grid-cols-7 gap-4 px-4 py-3 bg-gray-50 border-b font-medium text-sm text-gray-700">
                 <div>Artikel</div>
