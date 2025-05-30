@@ -160,50 +160,80 @@ export default function TestSession({ mode, questionCount, testType, source, sel
         break;
 
       case 'wo':
-        question = `"${word.article} ${word.german}" için WO? (Nerede?) cevabı nedir?`;
+        question = `"${word.german}" için WO? (Nerede?) cevabı nedir?`;
         correctAnswer = word.wo || "";
         if (type === 'multiple') {
-          const woOptions = [
-            'im Haus', 'in der Schule', 'auf dem Tisch', 'an der Wand', 
-            'im Garten', 'in der Küche', 'auf der Straße', 'am Fenster',
-            'im Zimmer', 'in der Stadt', 'auf dem Platz', 'an der Tür',
-            'im Park', 'in der Nähe', 'auf dem Boden', 'am Computer'
-          ];
-          const availableOptions = woOptions.filter(opt => opt !== correctAnswer);
-          const randomOptions = availableOptions.sort(() => Math.random() - 0.5).slice(0, 3);
-          options = [...randomOptions, correctAnswer].sort(() => Math.random() - 0.5);
+          // Kelime sabit kalacak, sadece ön ekler değişecek
+          const baseWord = word.german;
+          const woPrepositions = ['im', 'in der', 'in dem', 'auf dem', 'auf der', 'an der', 'an dem', 'am', 'beim', 'zur', 'zum'];
+          
+          // Doğru cevaptan ön eki çıkar
+          let correctPreposition = '';
+          for (const prep of woPrepositions) {
+            if (correctAnswer.startsWith(prep + ' ')) {
+              correctPreposition = prep;
+              break;
+            }
+          }
+          
+          // Diğer ön ekleri seç
+          const otherPrepositions = woPrepositions.filter(prep => prep !== correctPreposition);
+          const randomPrepositions = otherPrepositions.sort(() => Math.random() - 0.5).slice(0, 3);
+          
+          const wrongOptions = randomPrepositions.map(prep => `${prep} ${baseWord}`);
+          options = [...wrongOptions, correctAnswer].sort(() => Math.random() - 0.5);
         }
         break;
 
       case 'wohin':
-        question = `"${word.article} ${word.german}" için WOHIN? (Nereye?) cevabı nedir?`;
+        question = `"${word.german}" için WOHIN? (Nereye?) cevabı nedir?`;
         correctAnswer = word.wohin || "";
         if (type === 'multiple') {
-          const wohinOptions = [
-            'ins Haus', 'in die Schule', 'auf den Tisch', 'an die Wand',
-            'in den Garten', 'in die Küche', 'auf die Straße', 'ans Fenster',
-            'ins Zimmer', 'in die Stadt', 'auf den Platz', 'an die Tür',
-            'in den Park', 'in die Nähe', 'auf den Boden', 'zum Computer'
-          ];
-          const availableOptions = wohinOptions.filter(opt => opt !== correctAnswer);
-          const randomOptions = availableOptions.sort(() => Math.random() - 0.5).slice(0, 3);
-          options = [...randomOptions, correctAnswer].sort(() => Math.random() - 0.5);
+          // Kelime sabit kalacak, sadece ön ekler değişecek
+          const baseWord = word.german;
+          const wohinPrepositions = ['ins', 'in die', 'in den', 'auf den', 'auf die', 'an die', 'an den', 'ans', 'zum', 'zur'];
+          
+          // Doğru cevaptan ön eki çıkar
+          let correctPreposition = '';
+          for (const prep of wohinPrepositions) {
+            if (correctAnswer.startsWith(prep + ' ')) {
+              correctPreposition = prep;
+              break;
+            }
+          }
+          
+          // Diğer ön ekleri seç
+          const otherPrepositions = wohinPrepositions.filter(prep => prep !== correctPreposition);
+          const randomPrepositions = otherPrepositions.sort(() => Math.random() - 0.5).slice(0, 3);
+          
+          const wrongOptions = randomPrepositions.map(prep => `${prep} ${baseWord}`);
+          options = [...wrongOptions, correctAnswer].sort(() => Math.random() - 0.5);
         }
         break;
 
       case 'woher':
-        question = `"${word.article} ${word.german}" için WOHER? (Nereden?) cevabı nedir?`;
+        question = `"${word.german}" için WOHER? (Nereden?) cevabı nedir?`;
         correctAnswer = word.woher || "";
         if (type === 'multiple') {
-          const woherOptions = [
-            'aus dem Haus', 'aus der Schule', 'vom Tisch', 'von der Wand',
-            'aus dem Garten', 'aus der Küche', 'von der Straße', 'vom Fenster',
-            'aus dem Zimmer', 'aus der Stadt', 'vom Platz', 'von der Tür',
-            'aus dem Park', 'aus der Nähe', 'vom Boden', 'vom Computer'
-          ];
-          const availableOptions = woherOptions.filter(opt => opt !== correctAnswer);
-          const randomOptions = availableOptions.sort(() => Math.random() - 0.5).slice(0, 3);
-          options = [...randomOptions, correctAnswer].sort(() => Math.random() - 0.5);
+          // Kelime sabit kalacak, sadece ön ekler değişecek
+          const baseWord = word.german;
+          const woherPrepositions = ['aus dem', 'aus der', 'vom', 'von der', 'von dem'];
+          
+          // Doğru cevaptan ön eki çıkar
+          let correctPreposition = '';
+          for (const prep of woherPrepositions) {
+            if (correctAnswer.startsWith(prep + ' ')) {
+              correctPreposition = prep;
+              break;
+            }
+          }
+          
+          // Diğer ön ekleri seç
+          const otherPrepositions = woherPrepositions.filter(prep => prep !== correctPreposition);
+          const randomPrepositions = otherPrepositions.sort(() => Math.random() - 0.5).slice(0, 3);
+          
+          const wrongOptions = randomPrepositions.map(prep => `${prep} ${baseWord}`);
+          options = [...wrongOptions, correctAnswer].sort(() => Math.random() - 0.5);
         }
         break;
 
