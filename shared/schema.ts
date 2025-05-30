@@ -14,6 +14,8 @@ export const words = pgTable("words", {
   wo: text("wo"),
   wohin: text("wohin"),
   woher: text("woher"),
+  notes: text("notes"),
+  description: text("description"),
 });
 
 export const favoriteLists = pgTable("favorite_lists", {
