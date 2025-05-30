@@ -28,13 +28,10 @@ interface TestSessionProps {
 }
 
 export default function TestSession({ mode, questionCount, testType, source, selectedCategory, selectedFavoriteList, onComplete, onExit }: TestSessionProps) {
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState("");
-  const [fillAnswer, setFillAnswer] = useState("");
-  const [userAnswers, setUserAnswers] = useState<string[]>([]);
+  const [userAnswers, setUserAnswers] = useState<Record<number, string>>({});
   const [questions, setQuestions] = useState<TestQuestion[]>([]);
   const [showResult, setShowResult] = useState(false);
-  const [isAnswered, setIsAnswered] = useState(false);
+  const [isTestStarted, setIsTestStarted] = useState(false);
 
   const { data: allWords = [] } = useQuery<Word[]>({
     queryKey: ['/api/words'],
@@ -74,6 +71,7 @@ export default function TestSession({ mode, questionCount, testType, source, sel
   useEffect(() => {
     if (filteredWords.length > 0 && questions.length === 0) {
       generateQuestions();
+      setIsTestStarted(true);
     }
   }, [filteredWords]);
 
@@ -202,45 +200,31 @@ export default function TestSession({ mode, questionCount, testType, source, sel
     };
   };
 
-  const handleAnswer = () => {
-    const currentQuestion = questions[currentQuestionIndex];
-    const answer = currentQuestion.type === 'multiple' ? selectedAnswer : fillAnswer;
-    
-    const newAnswers = [...userAnswers, answer];
-    setUserAnswers(newAnswers);
-    setIsAnswered(true);
-
-    setTimeout(() => {
-      if (currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex(currentQuestionIndex + 1);
-        setSelectedAnswer("");
-        setFillAnswer("");
-        setIsAnswered(false);
-      } else {
-        finishTest(newAnswers);
-      }
-    }, 1500);
+  const handleAnswerChange = (questionIndex: number, answer: string) => {
+    setUserAnswers(prev => ({
+      ...prev,
+      [questionIndex]: answer
+    }));
   };
 
-  const finishTest = (answers: string[]) => {
+  const finishTest = () => {
     let correctCount = 0;
-    answers.forEach((answer, index) => {
-      if (answer.toLowerCase().trim() === questions[index].correctAnswer.toLowerCase().trim()) {
+    questions.forEach((question, index) => {
+      const userAnswer = userAnswers[index] || '';
+      if (userAnswer.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim()) {
         correctCount++;
       }
     });
     
     setShowResult(true);
-    setTimeout(() => {
-      onComplete(correctCount, questions.length);
-    }, 3000);
   };
 
-  const currentQuestion = questions[currentQuestionIndex];
-  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-  const isCorrect = isAnswered && 
-    (currentQuestion?.type === 'multiple' ? selectedAnswer : fillAnswer).toLowerCase().trim() === 
-    currentQuestion?.correctAnswer.toLowerCase().trim();
+  const getCorrectCount = () => {
+    return questions.filter((question, index) => {
+      const userAnswer = userAnswers[index] || '';
+      return userAnswer.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim();
+    }).length;
+  };
 
   if (questions.length === 0) {
     return (
@@ -256,9 +240,7 @@ export default function TestSession({ mode, questionCount, testType, source, sel
   }
 
   if (showResult) {
-    const correctCount = userAnswers.filter((answer, index) => 
-      answer.toLowerCase().trim() === questions[index].correctAnswer.toLowerCase().trim()
-    ).length;
+    const correctCount = getCorrectCount();
     
     return (
       <div className="max-w-6xl mx-auto space-y-6">
@@ -288,8 +270,8 @@ export default function TestSession({ mode, questionCount, testType, source, sel
           <CardContent>
             <div className="space-y-4">
               {questions.map((question, index) => {
-                const userAnswer = userAnswers[index];
-                const isCorrect = userAnswer?.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim();
+                const userAnswer = userAnswers[index] || '';
+                const isCorrect = userAnswer.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim();
                 
                 return (
                   <div key={index} className={`p-4 rounded-lg border-2 ${isCorrect ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
@@ -325,87 +307,72 @@ export default function TestSession({ mode, questionCount, testType, source, sel
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-7xl mx-auto">
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle>Test - {mode.toUpperCase()}</CardTitle>
-            <Button variant="outline" onClick={onExit}>
-              <i className="fas fa-times mr-2"></i>
-              Çıkış
-            </Button>
-          </div>
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm text-muted-foreground">
-              <span>Soru {currentQuestionIndex + 1} / {questions.length}</span>
-              <span>%{Math.round(progress)}</span>
-            </div>
-            <Progress value={progress} className="h-2" />
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="text-center p-6 bg-muted/50 rounded-lg">
-            <h3 className="text-xl font-medium mb-4">{currentQuestion?.question}</h3>
-            
-            {currentQuestion?.type === 'multiple' ? (
-              <RadioGroup value={selectedAnswer} onValueChange={setSelectedAnswer} className="text-left max-w-md mx-auto">
-                {currentQuestion.options?.map((option, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <RadioGroupItem 
-                      value={option} 
-                      id={`option-${index}`}
-                      disabled={isAnswered}
-                    />
-                    <Label 
-                      htmlFor={`option-${index}`} 
-                      className={`${isAnswered ? 
-                        option === currentQuestion.correctAnswer ? 'text-green-600 font-semibold' : 
-                        option === selectedAnswer && option !== currentQuestion.correctAnswer ? 'text-red-600' : ''
-                        : ''}`}
-                    >
-                      {option}
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            ) : (
-              <div className="max-w-md mx-auto">
-                <Input
-                  value={fillAnswer}
-                  onChange={(e) => setFillAnswer(e.target.value)}
-                  placeholder="Cevabınızı yazın..."
-                  disabled={isAnswered}
-                  className={`text-center ${isAnswered ? 
-                    isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'
-                    : ''}`}
-                />
-                {isAnswered && !isCorrect && (
-                  <p className="text-sm text-green-600 mt-2">
-                    Doğru cevap: {currentQuestion.correctAnswer}
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
-
-          {isAnswered ? (
-            <div className="text-center">
-              <div className={`inline-flex items-center px-4 py-2 rounded-lg ${isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                <i className={`fas ${isCorrect ? 'fa-check' : 'fa-times'} mr-2`}></i>
-                {isCorrect ? 'Doğru!' : 'Yanlış!'}
-              </div>
-            </div>
-          ) : (
-            <div className="text-center">
-              <Button 
-                onClick={handleAnswer}
-                disabled={currentQuestion?.type === 'multiple' ? !selectedAnswer : !fillAnswer.trim()}
-                size="lg"
-              >
-                Cevapla
+            <div className="flex gap-2">
+              <Button onClick={finishTest} variant="default">
+                <i className="fas fa-check mr-2"></i>
+                Testi Bitir
+              </Button>
+              <Button variant="outline" onClick={onExit}>
+                <i className="fas fa-times mr-2"></i>
+                Çıkış
               </Button>
             </div>
-          )}
+          </div>
+          <div className="text-sm text-muted-foreground">
+            Toplam {questions.length} soru - Tüm soruları yanıtlayın
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {questions.map((question, index) => (
+              <Card key={index} className="p-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-muted-foreground">Soru {index + 1}</span>
+                    {userAnswers[index] && (
+                      <i className="fas fa-check text-green-600 text-sm"></i>
+                    )}
+                  </div>
+                  
+                  <h4 className="font-medium text-sm">{question.question}</h4>
+                  
+                  {question.type === 'multiple' ? (
+                    <RadioGroup 
+                      value={userAnswers[index] || ''} 
+                      onValueChange={(value) => handleAnswerChange(index, value)}
+                    >
+                      {question.options?.map((option, optionIndex) => (
+                        <div key={optionIndex} className="flex items-center space-x-2">
+                          <RadioGroupItem 
+                            value={option} 
+                            id={`q${index}-option-${optionIndex}`}
+                          />
+                          <Label 
+                            htmlFor={`q${index}-option-${optionIndex}`} 
+                            className="text-xs"
+                          >
+                            {option}
+                          </Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  ) : (
+                    <Input
+                      value={userAnswers[index] || ''}
+                      onChange={(e) => handleAnswerChange(index, e.target.value)}
+                      placeholder="Cevabınızı yazın..."
+                      className="text-sm"
+                    />
+                  )}
+                </div>
+              </Card>
+            ))}
+          </div>
         </CardContent>
       </Card>
     </div>
