@@ -44,7 +44,9 @@ export default function TestSession({ mode, questionCount, testType, source, onC
   });
 
   useEffect(() => {
-    generateQuestions();
+    if (words.length > 0 || favoriteWords.length > 0) {
+      generateQuestions();
+    }
   }, [words, favoriteWords, mode, questionCount, source]);
 
   const getSourceWords = () => {
@@ -72,6 +74,12 @@ export default function TestSession({ mode, questionCount, testType, source, onC
     });
 
     setQuestions(generatedQuestions);
+    setCurrentQuestionIndex(0);
+    setSelectedAnswer("");
+    setFillAnswer("");
+    setUserAnswers([]);
+    setIsAnswered(false);
+    setShowResult(false);
   };
 
   const generateQuestionForWord = (word: Word, index: number, type: 'multiple' | 'fill', allWords: Word[]): TestQuestion => {
