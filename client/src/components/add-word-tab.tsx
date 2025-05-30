@@ -34,6 +34,8 @@ export default function AddWordTab() {
       wo: "",
       wohin: "",
       woher: "",
+      exampleSentence: "",
+      exampleTranslation: "",
     },
   });
 
@@ -104,6 +106,8 @@ export default function AddWordTab() {
           wo: "",
           wohin: "",
           woher: "",
+          exampleSentence: columns[6]?.trim() || "",    // 7-örnek cümle  
+          exampleTranslation: columns[7]?.trim() || "", // 8-örnek cümle çeviri
         };
         
         if (word.german && word.turkish) {

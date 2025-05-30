@@ -397,8 +397,42 @@ export default function EnhancedWordCard({ word, onClose, getArticleColor }: Enh
             />
           </div>
 
+          {/* Example Sentence */}
+          <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl p-8 border-2 border-black">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="bg-emerald-500 rounded-full p-2 border border-black">
+                <BookOpen className="h-5 w-5 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-emerald-900">Örnek Cümle</h3>
+            </div>
+            <EditableField
+              value={localWord.exampleSentence}
+              onSave={(value) => handleFieldUpdate('exampleSentence', value)}
+              placeholder="Almanca örnek cümle ekleyin..."
+              multiline
+              className="text-base bg-white/80 rounded-lg border-2 border-black"
+            />
+          </div>
+
+          {/* Example Translation */}
+          <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-2xl p-8 border-2 border-black">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="bg-orange-500 rounded-full p-2 border border-black">
+                <span className="text-white font-bold">🇹🇷</span>
+              </div>
+              <h3 className="text-lg font-semibold text-orange-900">Cümle Çevirisi</h3>
+            </div>
+            <EditableField
+              value={localWord.exampleTranslation}
+              onSave={(value) => handleFieldUpdate('exampleTranslation', value)}
+              placeholder="Örnek cümlenin Türkçe çevirisi..."
+              multiline
+              className="text-base bg-white/80 rounded-lg border-2 border-black"
+            />
+          </div>
+
           {/* Personal Notes */}
-          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-8 border-2 border-black">
+          <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-2xl p-8 border-2 border-black">
             <div className="flex items-center space-x-3 mb-4">
               <div className="bg-amber-500 rounded-full p-2 border border-black">
                 <Edit3 className="h-5 w-5 text-white" />
@@ -410,7 +444,7 @@ export default function EnhancedWordCard({ word, onClose, getArticleColor }: Enh
               onSave={(value) => handleFieldUpdate('notes', value)}
               placeholder="Ihre persönlichen Notizen zum Wort..."
               multiline
-              className="text-base bg-white/80 rounded-lg"
+              className="text-base bg-white/80 rounded-lg border-2 border-black"
             />
           </div>
 
