@@ -28,12 +28,31 @@ export default function WordListTab({ onOpenWordCard, onEditWord, getArticleColo
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data: words = [], isLoading } = useQuery<Word[]>({
-    queryKey: ['/api/words', { 
-      search: searchTerm, 
-      category: selectedCategory === 'all' ? undefined : selectedCategory, 
-      favorites: favoriteFilter === 'all' ? undefined : favoriteFilter 
-    }],
+  const { data: allWords = [], isLoading } = useQuery<Word[]>({
+    queryKey: ['/api/words'],
+  });
+
+  // Client-side filtering
+  const filteredWords = allWords.filter(word => {
+    // Search filter
+    if (searchTerm && !word.german.toLowerCase().includes(searchTerm.toLowerCase()) && 
+        !word.turkish.toLowerCase().includes(searchTerm.toLowerCase())) {
+      return false;
+    }
+    
+    // Category filter
+    if (selectedCategory !== 'all' && word.category !== selectedCategory) {
+      return false;
+    }
+    
+    // Favorite filter
+    if (favoriteFilter === 'favorites' && !word.isFavorite) {
+      return false;
+    } else if (favoriteFilter === 'not-favorites' && word.isFavorite) {
+      return false;
+    }
+    
+    return true;
   });
 
   const { data: categories = [] } = useQuery<string[]>({
@@ -156,7 +175,7 @@ export default function WordListTab({ onOpenWordCard, onEditWord, getArticleColo
     }
   };
 
-  const sortedWords = [...words].sort((a, b) => {
+  const sortedWords = [...filteredWords].sort((a, b) => {
     switch (sortOrder) {
       case 'alphabetical':
         return a.german.localeCompare(b.german);
