@@ -13,9 +13,10 @@ import type { Word, FavoriteList } from "@shared/schema";
 
 interface WordListTabProps {
   onOpenWordCard?: (word: Word) => void;
+  onEditWord?: (word: Word) => void;
 }
 
-export default function WordListTab({ onOpenWordCard }: WordListTabProps) {
+export default function WordListTab({ onOpenWordCard, onEditWord }: WordListTabProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [favoriteFilter, setFavoriteFilter] = useState<string>("all");
@@ -283,6 +284,13 @@ export default function WordListTab({ onOpenWordCard }: WordListTabProps) {
                             disabled={toggleFavoriteMutation.isPending}
                           >
                             <i className={`fas fa-heart ${word.isFavorite ? 'text-red-600' : 'text-gray-400'}`}></i>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onEditWord?.(word)}
+                          >
+                            <i className="fas fa-edit text-blue-600"></i>
                           </Button>
                           <Button
                             variant="ghost"

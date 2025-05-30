@@ -6,7 +6,17 @@ import FavoritesTab from "@/components/favorites-tab";
 import CategoriesTab from "@/components/categories-tab";
 import WordCardTab from "@/components/word-card-tab";
 import AddWordTab from "@/components/add-word-tab";
-import type { Word } from "@shared/schema";
+import type { Word, InsertWord } from "@shared/schema";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { insertWordSchema } from "@shared/schema";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 type TabType = 'test' | 'wordlist' | 'favorites' | 'categories' | 'wordcard' | 'addword';
 
@@ -14,6 +24,57 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<TabType>('test');
   const [selectedWordForCard, setSelectedWordForCard] = useState<Word | null>(null);
   const [isWordCardModalOpen, setIsWordCardModalOpen] = useState(false);
+  const [selectedWordForEdit, setSelectedWordForEdit] = useState<Word | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const { data: categories = [] } = useQuery<string[]>({
+    queryKey: ['/api/categories'],
+  });
+
+  const editForm = useForm<InsertWord>({
+    resolver: zodResolver(insertWordSchema),
+    defaultValues: {
+      german: '',
+      turkish: '',
+      article: 'der',
+      category: '',
+      plural: '',
+      pluralSuffix: '',
+      wo: '',
+      wohin: '',
+      woher: '',
+    },
+  });
+
+  const updateWordMutation = useMutation({
+    mutationFn: async (data: { id: number; word: InsertWord }) => {
+      const response = await apiRequest(`/api/words/${data.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data.word),
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/words'] });
+      toast({
+        title: "Başarılı",
+        description: "Kelime başarıyla güncellendi.",
+      });
+      setIsEditModalOpen(false);
+      setSelectedWordForEdit(null);
+      editForm.reset();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Hata",
+        description: error.message || "Kelime güncellenirken bir hata oluştu.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const tabs = [
     { id: 'test', label: 'Test', icon: 'clipboard-check' },
@@ -29,12 +90,34 @@ export default function Home() {
     setIsWordCardModalOpen(true);
   };
 
+  const handleEditWord = (word: Word) => {
+    setSelectedWordForEdit(word);
+    editForm.reset({
+      german: word.german,
+      turkish: word.turkish,
+      article: word.article || 'der',
+      category: word.category,
+      plural: word.plural || '',
+      pluralSuffix: word.pluralSuffix || '',
+      wo: word.wo || '',
+      wohin: word.wohin || '',
+      woher: word.woher || '',
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const onEditSubmit = (data: InsertWord) => {
+    if (selectedWordForEdit) {
+      updateWordMutation.mutate({ id: selectedWordForEdit.id, word: data });
+    }
+  };
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'test':
         return <TestTab />;
       case 'wordlist':
-        return <WordListTab onOpenWordCard={handleOpenWordCard} />;
+        return <WordListTab onOpenWordCard={handleOpenWordCard} onEditWord={handleEditWord} />;
       case 'favorites':
         return <FavoritesTab onOpenWordCard={handleOpenWordCard} />;
       case 'categories':
