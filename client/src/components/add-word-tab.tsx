@@ -244,7 +244,7 @@ export default function AddWordTab() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">No article</SelectItem>
+                        <SelectItem value="none">No article</SelectItem>
                         <SelectItem value="der">der (masculine)</SelectItem>
                         <SelectItem value="die">die (feminine)</SelectItem>
                         <SelectItem value="das">das (neuter)</SelectItem>

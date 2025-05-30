@@ -13,7 +13,7 @@ import type { Word, FavoriteList } from "@shared/schema";
 
 export default function FavoritesTab() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [newListName, setNewListName] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
@@ -182,7 +182,7 @@ export default function FavoritesTab() {
                     <SelectValue placeholder="All Categories" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Categories</SelectItem>
+                    <SelectItem value="all">All Categories</SelectItem>
                     {categories.map((category) => (
                       <SelectItem key={category} value={category}>
                         {category}

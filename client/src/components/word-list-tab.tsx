@@ -12,7 +12,7 @@ import type { Word } from "@shared/schema";
 
 export default function WordListTab() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [favoriteFilter, setFavoriteFilter] = useState<string>("all");
   const [sortOrder, setSortOrder] = useState<string>("alphabetical");
 
@@ -111,7 +111,7 @@ export default function WordListTab() {
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Categories</SelectItem>
+                  <SelectItem value="all">All Categories</SelectItem>
                   {categories.map((category) => (
                     <SelectItem key={category} value={category}>
                       {category}
