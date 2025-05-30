@@ -53,6 +53,9 @@ export default function Home() {
     mutationFn: async (data: { id: number; word: InsertWord }) => {
       const response = await apiRequest(`/api/words/${data.id}`, {
         method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(data.word),
       });
       return response.json();
@@ -251,6 +254,202 @@ export default function Home() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Word Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Kelime Düzenle</DialogTitle>
+          </DialogHeader>
+          <Form {...editForm}>
+            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Article Selection */}
+                <FormField
+                  control={editForm.control}
+                  name="article"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Artikel</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Artikel seçin" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="der">der</SelectItem>
+                          <SelectItem value="die">die</SelectItem>
+                          <SelectItem value="das">das</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* German Word */}
+                <FormField
+                  control={editForm.control}
+                  name="german"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Almanca Kelime</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Almanca kelime girin" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Turkish Meaning */}
+                <FormField
+                  control={editForm.control}
+                  name="turkish"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Türkçe Anlamı</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Türkçe anlamını girin" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Category */}
+                <FormField
+                  control={editForm.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Kategori</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Kategori seçin" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {categories.map((category) => (
+                            <SelectItem key={category} value={category}>
+                              {category}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Plural */}
+                <FormField
+                  control={editForm.control}
+                  name="plural"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Çoğul Hali</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Çoğul halini girin" {...field} value={field.value || ''} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Plural Suffix */}
+                <FormField
+                  control={editForm.control}
+                  name="pluralSuffix"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Çoğul Eki</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Çoğul ekini girin" {...field} value={field.value || ''} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* WO */}
+                <FormField
+                  control={editForm.control}
+                  name="wo"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>WO? (Nerede?)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="WO sorusunun cevabı" {...field} value={field.value || ''} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* WOHIN */}
+                <FormField
+                  control={editForm.control}
+                  name="wohin"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>WOHIN? (Nereye?)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="WOHIN sorusunun cevabı" {...field} value={field.value || ''} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* WOHER */}
+                <FormField
+                  control={editForm.control}
+                  name="woher"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>WOHER? (Nereden?)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="WOHER sorusunun cevabı" {...field} value={field.value || ''} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="flex justify-end space-x-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setIsEditModalOpen(false);
+                    setSelectedWordForEdit(null);
+                    editForm.reset();
+                  }}
+                >
+                  İptal
+                </Button>
+                <Button type="submit" disabled={updateWordMutation.isPending}>
+                  {updateWordMutation.isPending ? (
+                    <>
+                      <i className="fas fa-spinner fa-spin mr-2"></i>
+                      Güncelleniyor...
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-save mr-2"></i>
+                      Kaydet
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </div>
