@@ -193,17 +193,24 @@ export default function AddWordTab() {
             <Card className="bg-muted/50">
               <CardContent className="pt-6">
                 <h3 className="font-medium mb-3">Preview ({previewData.length} words detected)</h3>
-                <div className="text-sm space-y-2 max-h-32 overflow-y-auto">
+                <div className="text-sm space-y-3 max-h-48 overflow-y-auto">
                   {previewData.slice(0, 5).map((word, index) => (
-                    <div key={index} className="flex items-center space-x-4">
-                      <span className="text-primary font-medium">{word.article}</span>
-                      <span>{word.german} → {word.turkish}</span>
-                      <span className="text-muted-foreground">({word.category})</span>
+                    <div key={index} className="bg-white rounded-lg p-3 border shadow-sm">
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div><strong>Artikel:</strong> {word.article}</div>
+                        <div><strong>Kelime:</strong> {word.german}</div>
+                        <div><strong>Çoğul:</strong> {word.plural || '-'}</div>
+                        <div><strong>Çoğul Eki:</strong> {word.pluralSuffix || '-'}</div>
+                        <div><strong>Türkçe:</strong> {word.turkish}</div>
+                        <div><strong>Kategori:</strong> {word.category}</div>
+                        <div className="col-span-2"><strong>Örnek:</strong> {word.exampleSentence || '-'}</div>
+                        <div className="col-span-2"><strong>Çeviri:</strong> {word.exampleTranslation || '-'}</div>
+                      </div>
                     </div>
                   ))}
                   {previewData.length > 5 && (
-                    <div className="text-muted-foreground">
-                      ... and {previewData.length - 5} more words
+                    <div className="text-muted-foreground text-center py-2 border-t">
+                      ... ve {previewData.length - 5} kelime daha
                     </div>
                   )}
                 </div>
