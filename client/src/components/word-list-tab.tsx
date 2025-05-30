@@ -14,9 +14,10 @@ import type { Word, FavoriteList } from "@shared/schema";
 interface WordListTabProps {
   onOpenWordCard?: (word: Word) => void;
   onEditWord?: (word: Word) => void;
+  getArticleColor?: (article: string | null, hasPlural: boolean) => string;
 }
 
-export default function WordListTab({ onOpenWordCard, onEditWord }: WordListTabProps) {
+export default function WordListTab({ onOpenWordCard, onEditWord, getArticleColor }: WordListTabProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [favoriteFilter, setFavoriteFilter] = useState<string>("all");
@@ -175,7 +176,7 @@ export default function WordListTab({ onOpenWordCard, onEditWord }: WordListTabP
             <div>
               <div className="relative">
                 <Input
-                  placeholder="Search words..."
+                  placeholder="Wörter suchen..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"

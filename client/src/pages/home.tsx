@@ -56,8 +56,8 @@ export default function Home() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/words'] });
       toast({
-        title: "Başarılı",
-        description: "Kelime başarıyla güncellendi.",
+        title: "Erfolgreich",
+        description: "Wort wurde erfolgreich aktualisiert.",
       });
       setIsEditModalOpen(false);
       setSelectedWordForEdit(null);
@@ -65,8 +65,8 @@ export default function Home() {
     },
     onError: (error: any) => {
       toast({
-        title: "Hata",
-        description: error.message || "Kelime güncellenirken bir hata oluştu.",
+        title: "Fehler",
+        description: error.message || "Beim Aktualisieren des Wortes ist ein Fehler aufgetreten.",
         variant: "destructive",
       });
     },
@@ -74,11 +74,11 @@ export default function Home() {
 
   const tabs = [
     { id: 'test', label: 'Test', icon: 'clipboard-check' },
-    { id: 'wordlist', label: 'Word List', icon: 'list' },
-    { id: 'favorites', label: 'Favorites', icon: 'heart' },
-    { id: 'categories', label: 'Categories', icon: 'tag' },
-    { id: 'wordcard', label: 'Word Card', icon: 'credit-card' },
-    { id: 'addword', label: 'Add Word', icon: 'plus' },
+    { id: 'wordlist', label: 'Wortliste', icon: 'list' },
+    { id: 'favorites', label: 'Favoriten', icon: 'heart' },
+    { id: 'categories', label: 'Kategorien', icon: 'tag' },
+    { id: 'wordcard', label: 'Wortkarte', icon: 'credit-card' },
+    { id: 'addword', label: 'Wort hinzufügen', icon: 'plus' },
   ];
 
   const handleOpenWordCard = (word: Word) => {
@@ -104,7 +104,30 @@ export default function Home() {
 
   const onEditSubmit = (data: InsertWord) => {
     if (selectedWordForEdit) {
-      updateWordMutation.mutate({ id: selectedWordForEdit.id, word: data });
+      // Wort mit großem Anfangsbuchstaben
+      const formattedData = {
+        ...data,
+        german: data.german.charAt(0).toUpperCase() + data.german.slice(1).toLowerCase()
+      };
+      updateWordMutation.mutate({ id: selectedWordForEdit.id, word: formattedData });
+    }
+  };
+
+  // Funktion für Artikel-Farben
+  const getArticleColor = (article: string | null, hasPlural: boolean) => {
+    if (hasPlural && !article) {
+      return 'text-yellow-600 bg-yellow-50 border-yellow-200'; // Nur Plural
+    }
+    
+    switch (article) {
+      case 'der':
+        return 'text-blue-600 bg-blue-50 border-blue-200';
+      case 'die':
+        return 'text-red-600 bg-red-50 border-red-200';
+      case 'das':
+        return 'text-green-600 bg-green-50 border-green-200';
+      default:
+        return 'text-gray-600 bg-gray-50 border-gray-200';
     }
   };
 
@@ -113,7 +136,7 @@ export default function Home() {
       case 'test':
         return <TestTab />;
       case 'wordlist':
-        return <WordListTab onOpenWordCard={handleOpenWordCard} onEditWord={handleEditWord} />;
+        return <WordListTab onOpenWordCard={handleOpenWordCard} onEditWord={handleEditWord} getArticleColor={getArticleColor} />;
       case 'favorites':
         return <FavoritesTab onOpenWordCard={handleOpenWordCard} />;
       case 'categories':
