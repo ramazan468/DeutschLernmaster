@@ -128,6 +128,17 @@ export default function WordCardTab() {
     handleNextCard();
   };
 
+  const speakText = (text: string, lang: string = 'de-DE') => {
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = lang;
+      utterance.rate = 0.8;
+      utterance.pitch = 1;
+      utterance.volume = 1;
+      speechSynthesis.speak(utterance);
+    }
+  };
+
   if (!currentWord) {
     return (
       <Card>
@@ -321,7 +332,21 @@ export default function WordCardTab() {
                   <Button variant="ghost" size="sm">
                     <i className={`fas fa-heart text-xl ${currentWord.isFavorite ? 'text-red-600' : 'text-gray-400'}`}></i>
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => {
+                      if (cardType === 'turkish') {
+                        // Almanca kelimeyi oku
+                        const textToSpeak = currentWord.article ? `${currentWord.article} ${currentWord.german}` : currentWord.german;
+                        speakText(textToSpeak, 'de-DE');
+                      } else {
+                        // Türkçe kelimeyi oku
+                        speakText(currentWord.turkish, 'tr-TR');
+                      }
+                    }}
+                    title="Sesli okuma"
+                  >
                     <i className="fas fa-volume-up text-xl text-primary"></i>
                   </Button>
                 </div>
