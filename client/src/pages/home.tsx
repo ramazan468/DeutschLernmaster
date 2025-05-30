@@ -51,10 +51,7 @@ export default function Home() {
 
   const updateWordMutation = useMutation({
     mutationFn: async (data: { id: number; word: InsertWord }) => {
-      return apiRequest(`/api/words/${data.id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(data.word),
-      });
+      return apiRequest('PATCH', `/api/words/${data.id}`, data.word);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/words'] });
