@@ -90,12 +90,6 @@ export default function TestSession({ mode, questionCount, testType, source, sel
     });
 
     setQuestions(generatedQuestions);
-    setCurrentQuestionIndex(0);
-    setSelectedAnswer("");
-    setFillAnswer("");
-    setUserAnswers([]);
-    setIsAnswered(false);
-    setShowResult(false);
   };
 
   const generateQuestionForWord = (word: Word, index: number, type: 'multiple' | 'fill', allWords: Word[]): TestQuestion => {
