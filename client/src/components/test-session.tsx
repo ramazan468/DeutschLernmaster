@@ -345,49 +345,80 @@ export default function TestSession({ mode, questionCount, testType, source, sel
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {questions.map((question, index) => (
-              <Card key={index} className="p-4">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-muted-foreground">Soru {index + 1}</span>
-                    {userAnswers[index] && (
-                      <i className="fas fa-check text-green-600 text-sm"></i>
+            {questions.map((question, index) => {
+              const userAnswer = userAnswers[index] || '';
+              const isCorrect = showResult && userAnswer.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim();
+              const isAnswered = userAnswer.length > 0;
+              
+              return (
+                <Card key={index} className={`p-4 ${showResult ? (isCorrect ? 'border-green-400 bg-green-50' : 'border-red-400 bg-red-50') : ''}`}>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-muted-foreground">Soru {index + 1}</span>
+                      {showResult ? (
+                        <div className={`px-2 py-1 rounded text-xs font-bold ${isCorrect ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>
+                          {isCorrect ? '✓' : '✗'}
+                        </div>
+                      ) : (
+                        isAnswered && <i className="fas fa-check text-green-600 text-sm"></i>
+                      )}
+                    </div>
+                    
+                    <h4 className="font-medium text-sm">{question.question}</h4>
+                    
+                    {showResult && (
+                      <div className="text-xs space-y-1 p-2 bg-white/50 rounded border">
+                        <p><span className="font-semibold">Sizin:</span> <span className={isCorrect ? 'text-green-700 font-bold' : 'text-red-700 font-bold'}>{userAnswer || 'Boş'}</span></p>
+                        <p><span className="font-semibold">Doğru:</span> <span className="text-green-700 font-bold">{question.correctAnswer}</span></p>
+                      </div>
+                    )}
+                    
+                    {question.type === 'multiple' ? (
+                      <RadioGroup 
+                        value={userAnswers[index] || ''} 
+                        onValueChange={(value) => !showResult && handleAnswerChange(index, value)}
+                        disabled={showResult}
+                      >
+                        {question.options?.map((option, optionIndex) => {
+                          let optionStyle = "text-xs";
+                          if (showResult) {
+                            if (option === question.correctAnswer) {
+                              optionStyle = "text-xs text-green-700 font-bold";
+                            } else if (option === userAnswer && option !== question.correctAnswer) {
+                              optionStyle = "text-xs text-red-700 font-bold";
+                            }
+                          }
+                          
+                          return (
+                            <div key={optionIndex} className="flex items-center space-x-2">
+                              <RadioGroupItem 
+                                value={option} 
+                                id={`q${index}-option-${optionIndex}`}
+                                disabled={showResult}
+                              />
+                              <Label 
+                                htmlFor={`q${index}-option-${optionIndex}`} 
+                                className={optionStyle}
+                              >
+                                {option}
+                              </Label>
+                            </div>
+                          );
+                        })}
+                      </RadioGroup>
+                    ) : (
+                      <Input
+                        value={userAnswers[index] || ''}
+                        onChange={(e) => !showResult && handleAnswerChange(index, e.target.value)}
+                        placeholder="Cevabınızı yazın..."
+                        className={`text-sm ${showResult ? (isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50') : ''}`}
+                        disabled={showResult}
+                      />
                     )}
                   </div>
-                  
-                  <h4 className="font-medium text-sm">{question.question}</h4>
-                  
-                  {question.type === 'multiple' ? (
-                    <RadioGroup 
-                      value={userAnswers[index] || ''} 
-                      onValueChange={(value) => handleAnswerChange(index, value)}
-                    >
-                      {question.options?.map((option, optionIndex) => (
-                        <div key={optionIndex} className="flex items-center space-x-2">
-                          <RadioGroupItem 
-                            value={option} 
-                            id={`q${index}-option-${optionIndex}`}
-                          />
-                          <Label 
-                            htmlFor={`q${index}-option-${optionIndex}`} 
-                            className="text-xs"
-                          >
-                            {option}
-                          </Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
-                  ) : (
-                    <Input
-                      value={userAnswers[index] || ''}
-                      onChange={(e) => handleAnswerChange(index, e.target.value)}
-                      placeholder="Cevabınızı yazın..."
-                      className="text-sm"
-                    />
-                  )}
-                </div>
-              </Card>
-            ))}
+                </Card>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
