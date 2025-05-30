@@ -233,94 +233,7 @@ export default function TestSession({ mode, questionCount, testType, source, sel
     );
   }
 
-  if (showResult) {
-    const correctCount = getCorrectCount();
-    
-    return (
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Test Sonucu */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center py-8">
-              <i className="fas fa-trophy text-4xl text-yellow-500 mb-4"></i>
-              <h2 className="text-2xl font-bold mb-4">Test Tamamlandı!</h2>
-              <p className="text-lg mb-2">
-                Skorunuz: {correctCount}/{questions.length} ({Math.round((correctCount/questions.length)*100)}%)
-              </p>
-              <div className="flex justify-center gap-4 mt-6">
-                <Button onClick={onExit} variant="outline">
-                  Ana Sayfaya Dön
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Cevap Detayları */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Cevap Detayları</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {questions.map((question, index) => {
-                const userAnswer = userAnswers[index] || '';
-                const isCorrect = userAnswer.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim();
-                
-                // Kelimeyi bul
-                const word = allWords.find(w => 
-                  question.question.includes(w.german) || 
-                  question.question.includes(w.turkish) ||
-                  question.correctAnswer === w.article ||
-                  question.correctAnswer === w.plural ||
-                  question.correctAnswer === w.german ||
-                  question.correctAnswer === w.turkish
-                );
-                
-                return (
-                  <div key={index} className={`p-4 rounded-lg border-2 ${isCorrect ? 'border-green-400 bg-green-100' : 'border-red-400 bg-red-100'}`}>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Soru {index + 1}</span>
-                        <div className={`px-3 py-1 rounded-full text-xs font-bold ${isCorrect ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>
-                          {isCorrect ? '✓ DOĞRU' : '✗ YANLIŞ'}
-                        </div>
-                      </div>
-                      
-                      <div className="text-sm">
-                        <p className="font-medium mb-2">{question.question}</p>
-                        <div className="space-y-1">
-                          <p><span className="font-medium">Sizin Cevabınız:</span> <span className={isCorrect ? 'text-green-700 font-bold' : 'text-red-700 font-bold'}>{userAnswer || 'Boş'}</span></p>
-                          <p><span className="font-medium">Doğru Cevap:</span> <span className="text-green-700 font-bold">{question.correctAnswer}</span></p>
-                        </div>
-                      </div>
-                      
-                      {word && (
-                        <div className="mt-3 p-3 bg-white/60 rounded border border-gray-200">
-                          <h5 className="font-semibold text-xs text-gray-700 mb-2 uppercase tracking-wide">Kelime Detayları:</h5>
-                          <div className="space-y-1 text-xs">
-                            <p><span className="font-semibold">Almanca:</span> {word.article ? `${word.article} ` : ''}{word.german}</p>
-                            <p><span className="font-semibold">Türkçe:</span> {word.turkish}</p>
-                            {word.plural && <p><span className="font-semibold">Çoğul:</span> {word.plural}</p>}
-                            {word.category && <p><span className="font-semibold">Kategori:</span> {word.category}</p>}
-                            {word.exampleSentence && <p><span className="font-semibold">Örnek Cümle:</span> {word.exampleSentence}</p>}
-                            {word.exampleTranslation && <p><span className="font-semibold">Çeviri:</span> {word.exampleTranslation}</p>}
-                            {word.wo && <p><span className="font-semibold">WO (Nerede?):</span> {word.wo}</p>}
-                            {word.wohin && <p><span className="font-semibold">WOHIN (Nereye?):</span> {word.wohin}</p>}
-                            {word.woher && <p><span className="font-semibold">WOHER (Nereden?):</span> {word.woher}</p>}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -329,22 +242,42 @@ export default function TestSession({ mode, questionCount, testType, source, sel
           <div className="flex justify-between items-center">
             <CardTitle>Test - {mode.toUpperCase()}</CardTitle>
             <div className="flex gap-2">
-              <Button onClick={finishTest} variant="default">
-                <i className="fas fa-check mr-2"></i>
-                Testi Bitir
-              </Button>
-              <Button variant="outline" onClick={onExit}>
-                <i className="fas fa-times mr-2"></i>
-                Çıkış
-              </Button>
+              {showResult ? (
+                <div className="flex items-center gap-4">
+                  <div className="text-lg font-bold">
+                    Skor: <span className="text-green-600">{getCorrectCount()}</span>/{questions.length} 
+                    <span className="text-sm text-muted-foreground ml-2">
+                      (%{Math.round((getCorrectCount() / questions.length) * 100)})
+                    </span>
+                  </div>
+                  <Button onClick={onExit} variant="default">
+                    <i className="fas fa-home mr-2"></i>
+                    Ana Sayfaya Dön
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Button onClick={finishTest} variant="default">
+                    <i className="fas fa-check mr-2"></i>
+                    Testi Bitir
+                  </Button>
+                  <Button variant="outline" onClick={onExit}>
+                    <i className="fas fa-times mr-2"></i>
+                    Çıkış
+                  </Button>
+                </>
+              )}
             </div>
           </div>
           <div className="text-sm text-muted-foreground">
-            Toplam {questions.length} soru - Tüm soruları yanıtlayın
+            {showResult ? 
+              "Test tamamlandı - Cevaplarınız aşağıda işaretlenmiştir" : 
+              `Toplam ${questions.length} soru - Tüm soruları yanıtlayın`
+            }
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {questions.map((question, index) => {
               const userAnswer = userAnswers[index] || '';
               const isCorrect = showResult && userAnswer.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim();
