@@ -139,7 +139,7 @@ export default function Home() {
       case 'wordlist':
         return <WordListTab onOpenWordCard={handleOpenWordCard} onEditWord={handleEditWord} getArticleColor={getArticleColor} />;
       case 'favorites':
-        return <FavoritesTab onOpenWordCard={handleOpenWordCard} />;
+        return <FavoritesTab onOpenWordCard={handleOpenWordCard} onEditWord={handleEditWord} />;
       case 'categories':
         return <CategoriesTab onOpenWordCard={handleOpenWordCard} />;
       case 'wordcard':

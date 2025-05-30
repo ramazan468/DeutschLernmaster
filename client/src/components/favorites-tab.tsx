@@ -14,9 +14,10 @@ import type { Word, FavoriteList } from "@shared/schema";
 
 interface FavoritesTabProps {
   onOpenWordCard?: (word: Word) => void;
+  onEditWord?: (word: Word) => void;
 }
 
-export default function FavoritesTab({ onOpenWordCard }: FavoritesTabProps) {
+export default function FavoritesTab({ onOpenWordCard, onEditWord }: FavoritesTabProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [newListName, setNewListName] = useState("");
@@ -559,6 +560,14 @@ export default function FavoritesTab({ onOpenWordCard }: FavoritesTabProps) {
                           className="text-blue-600 hover:text-blue-700"
                         >
                           <i className="fas fa-eye"></i>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onEditWord?.(word)}
+                          className="text-green-600 hover:text-green-700"
+                        >
+                          <i className="fas fa-edit"></i>
                         </Button>
                         <Button
                           variant="ghost"
