@@ -254,7 +254,7 @@ export default function WordListTab({ onOpenWordCard, onEditWord, getArticleColo
               Word List
             </span>
             <span className="text-sm text-muted-foreground">
-              {words.length} words
+              {sortedWords.length} words
             </span>
           </CardTitle>
         </CardHeader>
