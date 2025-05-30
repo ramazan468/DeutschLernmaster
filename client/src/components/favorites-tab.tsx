@@ -21,7 +21,10 @@ export default function FavoritesTab() {
   const { toast } = useToast();
 
   const { data: favoriteWords = [], isLoading } = useQuery<Word[]>({
-    queryKey: ['/api/favorites', { search: searchTerm, category: selectedCategory }],
+    queryKey: ['/api/favorites', { 
+      search: searchTerm, 
+      category: selectedCategory === 'all' ? undefined : selectedCategory 
+    }],
   });
 
   const { data: favoriteLists = [] } = useQuery<FavoriteList[]>({

@@ -18,7 +18,11 @@ export default function WordCardTab() {
   const [isFlipped, setIsFlipped] = useState(false);
 
   const { data: words = [] } = useQuery<Word[]>({
-    queryKey: ['/api/words', { search: searchTerm, category: selectedCategory, favorites: favoriteFilter }],
+    queryKey: ['/api/words', { 
+      search: searchTerm, 
+      category: selectedCategory === 'all' ? undefined : selectedCategory, 
+      favorites: favoriteFilter === 'all' ? undefined : favoriteFilter 
+    }],
   });
 
   const { data: categories = [] } = useQuery<string[]>({
