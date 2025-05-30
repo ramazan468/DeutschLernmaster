@@ -16,6 +16,7 @@ export default function FavoritesTab() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [newListName, setNewListName] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [selectedListId, setSelectedListId] = useState<number | null>(null);
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -25,6 +26,10 @@ export default function FavoritesTab() {
       search: searchTerm, 
       category: selectedCategory === 'all' ? undefined : selectedCategory 
     }],
+  });
+
+  const { data: allWords = [] } = useQuery<Word[]>({
+    queryKey: ['/api/words'],
   });
 
   const { data: favoriteLists = [] } = useQuery<FavoriteList[]>({
@@ -87,13 +92,33 @@ export default function FavoritesTab() {
     removeFavoriteMutation.mutate(id);
   };
 
-  const filteredWords = favoriteWords.filter(word => {
-    const matchesSearch = !searchTerm || 
-      word.german.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      word.turkish.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || word.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const getDisplayedWords = () => {
+    if (selectedListId === null) {
+      // Show all favorites
+      return favoriteWords.filter(word => {
+        const matchesSearch = !searchTerm || 
+          word.german.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          word.turkish.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesCategory = !selectedCategory || selectedCategory === 'all' || word.category === selectedCategory;
+        return matchesSearch && matchesCategory;
+      });
+    } else {
+      // Show words from specific list
+      const selectedList = favoriteLists.find(list => list.id === selectedListId);
+      if (!selectedList) return [];
+      
+      const listWords = allWords.filter(word => selectedList.wordIds.includes(word.id.toString()));
+      return listWords.filter(word => {
+        const matchesSearch = !searchTerm || 
+          word.german.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          word.turkish.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesCategory = !selectedCategory || selectedCategory === 'all' || word.category === selectedCategory;
+        return matchesSearch && matchesCategory;
+      });
+    }
+  };
+
+  const filteredWords = getDisplayedWords();
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -137,17 +162,32 @@ export default function FavoritesTab() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <div className="p-3 bg-primary text-primary-foreground rounded-md cursor-pointer">
+              <div 
+                className={`p-3 rounded-md cursor-pointer transition-colors ${
+                  selectedListId === null 
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'bg-muted hover:bg-muted/80'
+                }`}
+                onClick={() => setSelectedListId(null)}
+              >
                 <div className="flex items-center justify-between">
                   <span className="flex items-center">
                     <i className="fas fa-list mr-2"></i>
-                    All Favorites
+                    Tüm Favoriler
                   </span>
                   <span className="text-sm">{favoriteWords.length}</span>
                 </div>
               </div>
               {favoriteLists.map((list) => (
-                <div key={list.id} className="p-3 bg-muted hover:bg-muted/80 rounded-md cursor-pointer">
+                <div 
+                  key={list.id} 
+                  className={`p-3 rounded-md cursor-pointer transition-colors ${
+                    selectedListId === list.id 
+                      ? 'bg-primary text-primary-foreground' 
+                      : 'bg-muted hover:bg-muted/80'
+                  }`}
+                  onClick={() => setSelectedListId(list.id)}
+                >
                   <div className="flex items-center justify-between">
                     <span className="flex items-center">
                       <i className="fas fa-bookmark mr-2"></i>
