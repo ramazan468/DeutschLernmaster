@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Trash2, Edit, Plus, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Word, FavoriteList } from "@shared/schema";
@@ -21,6 +22,10 @@ export default function FavoritesTab({ onOpenWordCard }: FavoritesTabProps) {
   const [newListName, setNewListName] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedListId, setSelectedListId] = useState<number | null>(null);
+  const [isCategoryManageOpen, setIsCategoryManageOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [editingCategory, setEditingCategory] = useState<string | null>(null);
+  const [editCategoryName, setEditCategoryName] = useState("");
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -250,9 +255,9 @@ export default function FavoritesTab({ onOpenWordCard }: FavoritesTabProps) {
                   <i className="fas fa-search absolute left-3 top-3 text-muted-foreground"></i>
                 </div>
               </div>
-              <div>
+              <div className="flex gap-2">
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger>
+                  <SelectTrigger className="flex-1">
                     <SelectValue placeholder="Tüm Kategoriler" />
                   </SelectTrigger>
                   <SelectContent>
@@ -264,6 +269,101 @@ export default function FavoritesTab({ onOpenWordCard }: FavoritesTabProps) {
                     ))}
                   </SelectContent>
                 </Select>
+                <Dialog open={isCategoryManageOpen} onOpenChange={setIsCategoryManageOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Settings className="h-4 w-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Kategori Yönetimi</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      {/* Add new category */}
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Yeni kategori adı..."
+                          value={newCategoryName}
+                          onChange={(e) => setNewCategoryName(e.target.value)}
+                          onKeyPress={(e) => e.key === 'Enter' && handleCreateCategory()}
+                        />
+                        <Button 
+                          onClick={handleCreateCategory}
+                          disabled={createCategoryMutation.isPending || !newCategoryName.trim()}
+                          size="sm"
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      
+                      {/* Category list */}
+                      <div className="max-h-60 overflow-y-auto space-y-2">
+                        {categories.map((category) => (
+                          <div key={category} className="flex items-center gap-2 p-2 border rounded">
+                            {editingCategory === category ? (
+                              <>
+                                <Input
+                                  value={editCategoryName}
+                                  onChange={(e) => setEditCategoryName(e.target.value)}
+                                  onKeyPress={(e) => {
+                                    if (e.key === 'Enter') {
+                                      handleUpdateCategory(category);
+                                    } else if (e.key === 'Escape') {
+                                      setEditingCategory(null);
+                                      setEditCategoryName("");
+                                    }
+                                  }}
+                                  className="flex-1"
+                                  autoFocus
+                                />
+                                <Button 
+                                  size="sm" 
+                                  onClick={() => handleUpdateCategory(category)}
+                                  disabled={updateCategoryMutation.isPending}
+                                >
+                                  ✓
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  onClick={() => {
+                                    setEditingCategory(null);
+                                    setEditCategoryName("");
+                                  }}
+                                >
+                                  ✕
+                                </Button>
+                              </>
+                            ) : (
+                              <>
+                                <span className="flex-1">{category}</span>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => {
+                                    setEditingCategory(category);
+                                    setEditCategoryName(category);
+                                  }}
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => handleDeleteCategory(category)}
+                                  disabled={deleteCategoryMutation.isPending}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
               <div>
                 <Select>
