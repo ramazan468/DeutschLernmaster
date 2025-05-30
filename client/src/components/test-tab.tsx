@@ -1,10 +1,14 @@
 import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import TestSession from "./test-session";
 import type { TestMode, TestType, TestSource } from "@shared/schema";
 
 export default function TestTab() {
@@ -13,6 +17,10 @@ export default function TestTab() {
   const [customCount, setCustomCount] = useState<string>('');
   const [testType, setTestType] = useState<TestType>('multiple');
   const [testSource, setTestSource] = useState<TestSource>('wordlist');
+  const [isTestActive, setIsTestActive] = useState(false);
+
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const testModes = [
     { id: 'artikel', label: 'Artikel', icon: 'font' },
@@ -27,16 +35,66 @@ export default function TestTab() {
 
   const questionCounts = [5, 10, 15, 20];
 
+  const saveTestResultMutation = useMutation({
+    mutationFn: async (result: { 
+      testMode: string; 
+      testType: string; 
+      testSource: string; 
+      questionCount: number; 
+      correctAnswers: number; 
+      totalQuestions: number; 
+      score: number; 
+    }) => {
+      return apiRequest('POST', '/api/test-results', result);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/test-results'] });
+    },
+  });
+
   const handleStartTest = () => {
     const finalCount = customCount ? parseInt(customCount) : questionCount;
-    console.log('Starting test with:', {
-      mode: selectedTestMode,
-      count: finalCount,
-      type: testType,
-      source: testSource,
-    });
-    // TODO: Implement test generation and navigation
+    setIsTestActive(true);
   };
+
+  const handleTestComplete = (correctAnswers: number, totalQuestions: number) => {
+    const score = Math.round((correctAnswers / totalQuestions) * 100);
+    
+    saveTestResultMutation.mutate({
+      testMode: selectedTestMode,
+      testType: testType,
+      testSource: testSource,
+      questionCount: totalQuestions,
+      correctAnswers,
+      totalQuestions,
+      score,
+    });
+
+    toast({
+      title: "Test Tamamlandı!",
+      description: `Skorunuz: ${correctAnswers}/${totalQuestions} (%${score})`,
+    });
+
+    setIsTestActive(false);
+  };
+
+  const handleExitTest = () => {
+    setIsTestActive(false);
+  };
+
+  if (isTestActive) {
+    const finalCount = customCount ? parseInt(customCount) : questionCount;
+    return (
+      <TestSession
+        mode={selectedTestMode}
+        questionCount={finalCount}
+        testType={testType}
+        source={testSource}
+        onComplete={handleTestComplete}
+        onExit={handleExitTest}
+      />
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
