@@ -76,7 +76,13 @@ export default function TestSession({ mode, questionCount, testType, source, sel
   }, [filteredWords]);
 
   const generateQuestions = () => {
-    const sourceWords = filteredWords;
+    let sourceWords = filteredWords;
+    
+    // Sentence modunda sadece örnek cümleye sahip kelimeleri filtrele
+    if (mode === 'sentence') {
+      sourceWords = filteredWords.filter(word => word.exampleSentence && word.exampleTranslation);
+    }
+    
     if (sourceWords.length === 0) return;
 
     const shuffled = [...sourceWords].sort(() => Math.random() - 0.5);
@@ -181,14 +187,14 @@ export default function TestSession({ mode, questionCount, testType, source, sel
         break;
 
       case 'sentence':
-        question = `Bu cümleyi Türkçeye çevirin: "${word.exampleSentence || word.german}"`;
-        correctAnswer = (word.exampleTranslation || word.turkish).charAt(0).toUpperCase() + (word.exampleTranslation || word.turkish).slice(1);
+        question = `Bu cümleyi Almancaya çevirin: "${word.exampleTranslation || word.turkish}"`;
+        correctAnswer = (word.exampleSentence || word.german).charAt(0).toUpperCase() + (word.exampleSentence || word.german).slice(1);
         if (type === 'multiple') {
-          const otherTranslations = allWords
-            .filter(w => w.id !== word.id && (w.exampleTranslation || w.turkish))
-            .map(w => (w.exampleTranslation || w.turkish).charAt(0).toUpperCase() + (w.exampleTranslation || w.turkish).slice(1))
+          const otherSentences = allWords
+            .filter(w => w.id !== word.id && w.exampleSentence)
+            .map(w => w.exampleSentence!.charAt(0).toUpperCase() + w.exampleSentence!.slice(1))
             .slice(0, 3);
-          options = [...otherTranslations, correctAnswer].sort(() => Math.random() - 0.5);
+          options = [...otherSentences, correctAnswer].sort(() => Math.random() - 0.5);
         }
         break;
 
