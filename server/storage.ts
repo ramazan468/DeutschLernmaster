@@ -1,6 +1,6 @@
-import { words, favoriteLists, testResults, type Word, type InsertWord, type FavoriteList, type InsertFavoriteList, type TestResult, type InsertTestResult } from "@shared/schema";
+import { words, favoriteLists, testResults, categories, type Word, type InsertWord, type FavoriteList, type InsertFavoriteList, type TestResult, type InsertTestResult, type Category, type InsertCategory } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, inArray, like, or } from "drizzle-orm";
 
 export interface IStorage {
   // Word operations
