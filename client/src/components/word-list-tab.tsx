@@ -328,11 +328,11 @@ export default function WordListTab({ onOpenWordCard, onEditWord, getArticleColo
       <Dialog open={isAddToFavoriteDialogOpen} onOpenChange={setIsAddToFavoriteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Favori Listesine Ekle</DialogTitle>
+            <DialogTitle>Zur Favoritenliste hinzufügen</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              "{selectedWordForFavorite?.german}" kelimesini hangi listeye eklemek istiyorsunuz?
+              Zu welcher Liste möchten Sie "{selectedWordForFavorite?.german}" hinzufügen?
             </p>
             
             <div className="space-y-2">
