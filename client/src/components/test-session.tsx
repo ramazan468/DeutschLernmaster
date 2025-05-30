@@ -250,6 +250,14 @@ export default function TestSession({ mode, questionCount, testType, source, sel
                       (%{Math.round((getCorrectCount() / questions.length) * 100)})
                     </span>
                   </div>
+                  <Button onClick={() => {
+                    setShowResult(false);
+                    setUserAnswers({});
+                    generateQuestions();
+                  }} variant="outline">
+                    <i className="fas fa-redo mr-2"></i>
+                    Yeni Test
+                  </Button>
                   <Button onClick={onExit} variant="default">
                     <i className="fas fa-home mr-2"></i>
                     Ana Sayfaya Dön
